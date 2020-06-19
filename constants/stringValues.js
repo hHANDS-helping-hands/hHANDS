@@ -7,7 +7,7 @@ const values = {
   age: "age",
   profession: "profession",
   otp: "otp",
-  name: "name"
+  name: "name",
 };
 
 export default values;

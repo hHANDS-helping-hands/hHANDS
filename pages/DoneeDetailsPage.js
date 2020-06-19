@@ -4,80 +4,109 @@ import {
   Text,
   View,
   Button,
-  Alert,
-  ActivityIndicator
+  StatusBar,
+  TextInput,
+  Keyboard,
 } from "react-native";
 import Color from "../constants/colors";
-import * as Location from "expo-location";
-import * as Permissions from "expo-permissions";
+import { ScrollView } from "react-native-gesture-handler";
+import debugMode from "../constants/debug";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function DoneeDetailsPage(props) {
-  const [pickedLocation, setPickedLocation] = useState();
-  const [isFetching, setIsFetching] = useState(false);
-
-  const verifyPermission = async () => {
-    const result = await Permissions.askAsync(Permissions.LOCATION);
-    if (result.status !== "granted") {
-      Alert.alert(
-        "Insufficient Permissions",
-        "you need to grant location permission to use this app",
-        [{ text: "Okay" }]
-      );
-
-      return false;
-    }
-    return true;
-  };
-
-  const getLocationHandler = async () => {
-    const hasPermission = await verifyPermission();
-    if (!hasPermission) return;
-    setIsFetching(true);
-    try {
-      const location = await Location.getCurrentPositionAsync({
-        timeout: 5000
-      });
-      console.log(location);
-      setPickedLocation({
-        lat: location.coords.latitude,
-        long: location.coords.longitude
-      });
-    } catch (error) {
-      Alert.alert(
-        "could not fetch location",
-        "Please try again or pick a location on map",
-        [{ text: "Okay" }]
-      );
-    }
-    setIsFetching(false);
-  };
+  Keyboard.addListener("keyboardDidShow", () => {
+    handleKeyboard(1);
+  });
+  Keyboard.addListener("keyboardDidHide", () => {
+    handleKeyboard(0);
+  });
 
   return (
     <View style={styles.container}>
-      <View style={styles.mapPreview}>
-        {isFetching ? <ActivityIndicator /> : <Text>Location not chosen</Text>}
-      </View>
-      <Button
-        title="Get location"
-        onPress={() => {
-          console.log("clicked");
-          getLocationHandler();
-        }}
+      <StatusBar
+        backgroundColor={Color.PrimaryColor}
+        barStyle="light-content"
       />
+      <ScrollView contentContainerStyle={{ padding: 24 }}>
+        <Text style={styles.text}>Name</Text>
+        <TextInput style={styles.textInput}></TextInput>
+        <View style={{ ...debugMode.debug, ...styles.horizontal }}>
+          <Text style={{ ...styles.text, ...debugMode.debug }}>Contact</Text>
+          <Text style={{ ...styles.verify, ...debugMode.debug }}>Verify</Text>
+        </View>
+        <TextInput style={styles.textInput}></TextInput>
+        <Text style={styles.text}>Problem</Text>
+        <TextInput style={styles.textInput}></TextInput>
+        <View style={styles.button}>
+          <Button title="Enter Address" color={Color.PrimaryColor}></Button>
+        </View>
+        <Text style={styles.text}>Description</Text>
+        <TextInput
+          multiline
+          numberOfLines={5}
+          style={{
+            ...styles.textInput,
+            textAlignVertical: "top",
+            paddingTop: 4,
+          }}
+        ></TextInput>
+        <View style={styles.button}>
+          <Button
+            title="Submit"
+            style={styles.button}
+            color={Color.PrimaryColor}
+          ></Button>
+        </View>
+      </ScrollView>
     </View>
   );
+}
+
+function handleKeyboard(value) {
+  if (value) {
+    console.log("Keyboard did show");
+  } else {
+    console.log("Keyboard did hide");
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Color.PrimaryColor,
-    alignItems: "center",
-    justifyContent: "center"
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    backgroundColor: Color.White,
   },
-  mapPreview: {
-    width: "100%",
-    borderColor: Color.Black,
-    borderWidth: 4
-  }
+  textInput: {
+    borderColor: Color.SecondaryColor,
+    borderWidth: 1,
+    borderRadius: 5,
+    textAlignVertical: "top",
+    textAlignVertical: "center",
+    marginBottom: 12,
+    paddingLeft: 4,
+  },
+  text: {
+    color: Color.SecondaryColor,
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  horizontal: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  verify: {
+    color: Color.White,
+    backgroundColor: Color.SecondaryColor,
+    borderRadius: 5,
+    paddingLeft: 2,
+    paddingRight: 2,
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  button: {
+    marginBottom: 12,
+    marginTop: 12,
+  },
 });

@@ -20,7 +20,7 @@ const fetchFonts = () => {
   return Font.loadAsync({
     "open-sans-light": require("./assets/fonts/OpenSans-Light.ttf"),
     "open-sans-regular": require("./assets/fonts/OpenSans-Regular.ttf"),
-    "open-sans-bold": require("./assets/fonts/OpenSans-Bold.ttf")
+    "open-sans-bold": require("./assets/fonts/OpenSans-Bold.ttf"),
   });
 };
 

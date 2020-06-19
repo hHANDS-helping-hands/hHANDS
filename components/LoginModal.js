@@ -11,7 +11,7 @@ import axios from "axios";
 
 const initialState = {
   mobileNo: "",
-  password: ""
+  password: "",
 };
 
 const reducer = (state, action) => {
@@ -29,7 +29,7 @@ const reducer = (state, action) => {
 };
 
 export default function LoginModal(props) {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const hideMe = () => {
     setIsVisible(false);
   };
@@ -45,7 +45,7 @@ export default function LoginModal(props) {
           style={{ ...styles.input, marginTop: 8 }}
           keyboardType="number-pad"
           placeholder="Mobile No"
-          onChangeText={text => {
+          onChangeText={(text) => {
             dispatch({ type: "mobileNo", mobileNo: text });
           }}
         ></TextInput>
@@ -54,7 +54,7 @@ export default function LoginModal(props) {
           style={{ ...styles.input }}
           placeholder="Password"
           secureTextEntry={true}
-          onChangeText={text => {
+          onChangeText={(text) => {
             dispatch({ type: "password", password: text });
           }}
         ></TextInput>
@@ -71,23 +71,23 @@ export default function LoginModal(props) {
   );
 }
 //`var headers;
-const LoginHandler = state => {
+const LoginHandler = (state) => {
   axios
     .get("http://192.168.29.82:8080/login", {
       params: {
         username: state.mobileNo,
-        password: state.password
-      }
+        password: state.password,
+      },
     })
-    .then(response => {
+    .then((response) => {
       console.log(response.data.token);
       AsyncStorage.setItem();
-      AsyncStorage.setItem("token", response.data.token).catch(error => {
+      AsyncStorage.setItem("token", response.data.token).catch((error) => {
         console.log(error);
       });
       nextRequest();
     })
-    .catch(error => {
+    .catch((error) => {
       console.log(error);
     });
 };
@@ -97,8 +97,8 @@ const nextRequest = async () => {
   //console.log("nextRequest: " + token);
   let response = await axios.get("http://192.168.29.82:8080/handle", {
     headers: {
-      Authorization: "Bearer " + token
-    }
+      Authorization: "Bearer " + token,
+    },
   });
   console.log(response.data);
 };
@@ -108,19 +108,19 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     alignItems: "center",
     justifyContent: "center",
-    padding: 32
+    padding: 32,
   },
   input: {
     width: "80%",
     height: 40,
     borderBottomColor: Color.PrimaryColor,
     borderBottomWidth: 1,
-    fontSize: 14
+    fontSize: 14,
   },
   buttonContainer: {
     marginTop: 24,
     flexDirection: "row",
     width: "80%",
-    justifyContent: "space-between"
-  }
+    justifyContent: "space-between",
+  },
 });

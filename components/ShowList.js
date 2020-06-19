@@ -4,10 +4,12 @@ import dataGenerator from "../utilities/DataGenerator";
 import Color from "../constants/colors";
 import debugMode from "../constants/debug";
 
-export default function ShowList() {
-  DATA = dataGenerator(200);
+export default function ShowList(props) {
+  console.log(props);
+  DATA = dataGenerator(20);
   return (
     <FlatList
+      style={{ marginTop: props.titleHeight }}
       data={DATA}
       renderItem={({ item }) => (
         <View style={{ ...styles.doneeDetail, ...debugMode.debug }}>
@@ -24,10 +26,10 @@ const styles = StyleSheet.create({
   doneeDetail: {
     margin: 4,
     elevation: 0.4,
-    padding: 8
+    padding: 8,
   },
   name: {
     fontSize: 18,
-    color: Color.Black
-  }
+    color: Color.Black,
+  },
 });
