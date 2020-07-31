@@ -16,12 +16,12 @@ import Feedback from "../pages/Feedback";
 import ForgotPassword from "../pages/ForgotPassword";
 
 const Navigator = createStackNavigator({
-  DebugScreen: {
-    screen: DebugScreen,
-    navigationOptions: {
-      headerShown: false,
-    },
-  },
+  // DebugScreen: {
+  //   screen: DebugScreen,
+  //   navigationOptions: {
+  //     headerShown: false,
+  //   },
+  // },
   SplashScreen: {
     screen: SplashScreen,
     navigationOptions: {
