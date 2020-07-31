@@ -3,7 +3,7 @@
     "name": "hHANDS",
     "slug": "hHANDS",
     "platforms": ["ios", "android", "web"],
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/hhands.png",
     "splash": {
@@ -18,14 +18,14 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.zrath.hhands",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.1"
     },
     "androidStatusBar": {
       "backgroundColor": "#eeeeee"
     },
     "android": {
       "package": "com.zrath.hhands",
-      "versionCode": 1,
+      "versionCode": 2,
       "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
       "config": {
         "googleMaps": {
