@@ -1,5 +1,5 @@
-import React, { useState, useReducer } from "react";
-import { Text, View, StyleSheet, Button, AsyncStorage } from "react-native";
+import React, { useState, useReducer, useEffect } from "react";
+import { Text, View, StyleSheet, Button, Keyboard } from "react-native";
 import Modal from "react-native-modal";
 import HelpingHands from "../components/HelpingHands";
 import Colors from "../constants/colors";
@@ -8,11 +8,20 @@ import debugMode from "../constants/debug";
 import Color from "../constants/colors";
 import axios from "axios";
 import Values from "../constants/stringValues";
+import { AxiosGetReq } from "../utilities/AxiosReq";
+import {
+  setToken,
+  setCredential,
+  login,
+} from "../store/actions/authentication";
+import { useDispatch } from "react-redux";
+import CustomAlert from "../utilities/CustomAlert";
 //import debugMode from "../constants/debug";
 //import AsyncStorage from "@react-native-community/async-storage";
 
 const initialState = {
-  otp: ""
+  otp: "",
+  showError: "",
 };
 
 const reducer = (state, action) => {
@@ -20,6 +29,8 @@ const reducer = (state, action) => {
     case Values.otp:
       console.log(action.otp);
       return { ...state, otp: action.value };
+    case "showError":
+      return { ...state, showError: action.value };
     default:
       console.log(action);
       return;
@@ -29,7 +40,21 @@ const reducer = (state, action) => {
 export default function OtpModal(props) {
   //console.log(props);
 
+  const username = props.username;
+
   const [state, dispatch] = useReducer(reducer, initialState);
+  const dispatchStore = useDispatch();
+
+  const _keyboardDidShow = () => {
+    dispatch({ type: "showError", data: "" });
+  };
+
+  useEffect(() => {
+    Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+    return () => {
+      Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+    };
+  }, []);
 
   return (
     <Modal isVisible={props.isVisible} onBackdropPress={props.hide}>
@@ -40,15 +65,22 @@ export default function OtpModal(props) {
           style={{ ...styles.input, marginTop: 8 }}
           keyboardType="number-pad"
           placeholder="OTP"
-          onChangeText={text => {
+          onChangeText={(text) => {
             dispatch({ type: Values.otp, value: text });
           }}
         ></TextInput>
+        {state.showError != "" && (
+          <Text style={{ color: Color.SecondaryColor, marginTop: 8 }}>
+            {state.showError}
+          </Text>
+        )}
         <View style={{ ...styles.buttonContainer, ...debugMode.debug }}>
           <Button
             title="Enter Otp"
             color={Color.PrimaryColor}
-            onPress={() => LoginHandler(state)}
+            onPress={() =>
+              otpHandler(state.otp, props, dispatchStore, dispatch)
+            }
           ></Button>
         </View>
       </View>
@@ -56,36 +88,23 @@ export default function OtpModal(props) {
   );
 }
 //`var headers;
-const LoginHandler = state => {
-  axios
-    .get("http://192.168.29.82:8080/login", {
-      params: {
-        username: state.mobileNo,
-        password: state.password
-      }
-    })
-    .then(response => {
-      console.log(response.data.token);
-      AsyncStorage.setItem();
-      AsyncStorage.setItem("token", response.data.token).catch(error => {
-        console.log(error);
-      });
-      nextRequest();
-    })
-    .catch(error => {
-      console.log(error);
-    });
-};
-
-const nextRequest = async () => {
-  let token = await AsyncStorage.getItem("token");
-  //console.log("nextRequest: " + token);
-  let response = await axios.get("http://192.168.29.82:8080/handle", {
-    headers: {
-      Authorization: "Bearer " + token
+const otpHandler = async (otp, props, dispatchStore, dispatch) => {
+  const { username } = props;
+  if (otp.length != 4) {
+    dispatch({ type: "showError", value: "Otp must be of 4 digits" });
+    return;
+  }
+  const response = await AxiosGetReq({ user: username, otp: otp }, "/checkotp");
+  if (response) {
+    if (response.data.success) {
+      dispatch({ type: "showError", value: "" });
+      dispatchStore(setToken(response.data.token));
+      props.action(response.data.token);
+      return;
     }
-  });
-  console.log(response.data);
+    dispatch({ type: "showError", value: response.data.message });
+    return;
+  }
 };
 
 const styles = StyleSheet.create({
@@ -93,19 +112,18 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.White,
     alignItems: "center",
     justifyContent: "center",
-    padding: 32
+    padding: 32,
   },
   input: {
     width: "80%",
     height: 40,
     borderBottomColor: Color.PrimaryColor,
     borderBottomWidth: 1,
-    fontSize: 14
+    fontSize: 14,
   },
   buttonContainer: {
     marginTop: 24,
-    // flexDirection: "row",
     width: "80%",
-    justifyContent: "center"
-  }
+    justifyContent: "center",
+  },
 });

@@ -1,24 +1,72 @@
-import React from "react";
+import React, { useState } from "react";
 import { Text, View, Image, StyleSheet } from "react-native";
-import MapView from "react-native-maps";
-
+import MapView, { Marker } from "react-native-maps";
+import debugmode from "../constants/debug";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { MaterialIcons, Feather } from "@expo/vector-icons";
+import Color from "../constants/colors";
+import ShowDoneeDetails from "../pages/ShowDoneeDetails";
+import { hasStartedLocationUpdatesAsync } from "expo-location";
 export default function MapPreview(props) {
   const mapRegion = {
-    latitude: 37.78,
-    longitude: -122.43,
-    latitudeDelta: 0.00922,
-    longitudeDelta: 0.01922,
+    latitude: props.userLocation.latitude,
+    longitude: props.userLocation.longitude,
+    latitudeDelta: 0.00222,
+    longitudeDelta: 0.00922,
   };
+  const tappedLocation = props.tappedLocation;
+  const setTappedLocation = props.setTappedLocation;
+  var marker = null;
   const selectPlaceHandler = (event) => {
-    console.log(event);
+    if (setTappedLocation)
+      setTappedLocation({
+        latitude: event.nativeEvent.coordinate.latitude,
+        longitude: event.nativeEvent.coordinate.longitude,
+      });
   };
   return (
     <MapView
+      key={0}
       region={mapRegion}
       style={styles.mapStyle}
       onPress={selectPlaceHandler}
       showsUserLocation={true}
-    ></MapView>
+      showsMyLocationButton={false}
+      showsCompass={false}
+    >
+      {props.coordinates &&
+        props.coordinates.map((item, index) => (
+          <Marker
+            key={index}
+            coordinate={{
+              longitude: item.location.coordinates[0],
+              latitude: item.location.coordinates[1],
+            }}
+            onCalloutPress={() => {
+              //console.log("Callout pressed");
+              props.navigation.navigate("ShowDoneeDetails", { ticket: item });
+            }}
+            title={item.name}
+            description={item.problem}
+            pinColor="red"
+            style={debugmode.debug}
+          />
+        ))}
+      {props.markLocation && (
+        <Marker
+          title="Map"
+          ref={(_marker) => {
+            marker = _marker;
+          }}
+          description="description"
+          pinColor="red"
+          coordinate={tappedLocation}
+          onPress={() => {
+            marker.hideCallout();
+          }}
+        />
+      )}
+    </MapView>
   );
 }
 const styles = StyleSheet.create({

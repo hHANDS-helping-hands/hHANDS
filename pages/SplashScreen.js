@@ -4,13 +4,42 @@ import { DotIndicator } from "react-native-indicators";
 import Color from "../constants/colors";
 import HelpingHands from "../components/HelpingHands";
 import Screens from "../constants/screens";
+import { Keys, getData } from "../utilities/AsyncStorage";
+import { useDispatch } from "react-redux";
+import {
+  setToken,
+  login,
+  setUserData,
+  setCredential,
+} from "../store/actions/authentication";
+import { StackActions, NavigationActions } from "react-navigation";
+
+const dispatchStoredVar = async (dispatch) => {
+  const value = await getData(Keys.loggedIn);
+  if (value) {
+    dispatch(login());
+    const token = await getData(Keys.token);
+    dispatch(setToken(token));
+    const userData = await getData(Keys.userData);
+    dispatch(setUserData(userData));
+    const loginCredential = await getData(Keys.loginCredential);
+    dispatch(setCredential(loginCredential));
+  }
+};
 
 export default function SplashScreen(props) {
   const goToHomeScreen = () => {
     console.log("After 2 seconds : ");
-    console.log("Splash Screen", props);
-    props.navigation.navigate(Screens.HomePage);
+    //console.log("Splash Screen", props);
+    //props.navigation.navigate(Screens.HomePage);
+    const resetAction = StackActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: Screens.HomePage })],
+    });
+    props.navigation.dispatch(resetAction);
   };
+  const dispatch = useDispatch();
+  dispatchStoredVar(dispatch);
 
   setTimeout(goToHomeScreen, 2000);
 

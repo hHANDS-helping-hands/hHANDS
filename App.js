@@ -6,7 +6,18 @@ import * as Font from "expo-font";
 import { AppLoading } from "expo";
 import SplashScreen from "./pages/SplashScreen";
 import Navigator from "./navigation/Navigator";
-import DoneeDetailsPage from "./pages/DoneeDetailsPage";
+import { createStore, combineReducers } from "redux";
+import authenticationReducer from "./store/reducers/authentication";
+import inMemoryDataReducer from "./store/reducers/inMemoryData";
+import { Provider } from "react-redux";
+import store from "./store/store";
+
+// const rootReducer = combineReducers({
+//   authentication: authenticationReducer,
+//   inMemoryData: inMemoryDataReducer,
+// });
+
+// const store = createStore(rootReducer);
 
 const fetchFonts = () => {
   console.log("started loading");
@@ -38,5 +49,9 @@ export default function App() {
       />
     );
 
-  return <Navigator />;
+  return (
+    <Provider store={store}>
+      <Navigator />
+    </Provider>
+  );
 }

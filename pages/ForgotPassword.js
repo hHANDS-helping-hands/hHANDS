@@ -19,7 +19,7 @@ import OtpModal from "../components/OtpModal";
 import Values from "../constants/stringValues";
 import { AxiosGetReq } from "../utilities/AxiosReq";
 import CustomAlert from "../utilities/CustomAlert";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   setToken,
   setCredential,
@@ -29,13 +29,8 @@ import {
 
 const initialState = {
   username: "",
-  name: "",
-  age: "",
   password: "",
   confirmPassword: "",
-  accuracy: 0,
-  selectedValue: "Profession",
-  gender: "Male",
   showError: "",
   otpModalVisible: false,
   isVisible: true,
@@ -48,18 +43,8 @@ const reducer = (state, action) => {
       return { ...state, username: action.value };
     case Values.password:
       return { ...state, password: action.value };
-    case "gender":
-      return { ...state, gender: action.value };
-    case Values.age:
-      return { ...state, age: action.value };
     case Values.confirmPassword:
       return { ...state, confirmPassword: action.value };
-    case Values.profession:
-      return { ...state, profession: action.value };
-    case Values.name:
-      return { ...state, name: action.value };
-    case "selectedValue":
-      return { ...state, selectedValue: action.value };
     case "showError":
       return { ...state, showError: action.value };
     case "otpModalVisible":
@@ -71,12 +56,12 @@ const reducer = (state, action) => {
   }
 };
 
-export default function SignUp(props) {
-  const params = props.navigation.state.params;
+export default function ForgotPassword(props) {
+  //const params = props.navigation.state.params;
+  const dispatchStore = useDispatch();
   const hideme = () => {
     dispatch({ type: "otpModalVisible", value: false });
   };
-  const dispatchStore = useDispatch();
   const showme = async () => {
     let result = validateData(state);
     if (result.status) {
@@ -84,7 +69,10 @@ export default function SignUp(props) {
         type: "showError",
         value: "",
       });
-      let response = await AxiosGetReq({ user: state.username }, "/getotp");
+      let response = await AxiosGetReq(
+        { user: state.username, action: "resetPassword" },
+        "/getotp"
+      );
       if (handleResponse(response))
         dispatch({ type: "otpModalVisible", value: true });
     } else
@@ -95,19 +83,13 @@ export default function SignUp(props) {
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
-  const token = useSelector((state) => state.authentication.token);
 
-  const signUp = async (token) => {
+  const resetPassword = async (token) => {
     const response = await AxiosGetReq(
       {
-        user: state.username,
         pass: state.password,
-        gend: state.gender,
-        name: state.name,
-        prof: state.selectedValue,
-        age: state.age,
       },
-      "/signup",
+      "/resetpassword",
       token
     );
     if (response) {
@@ -115,15 +97,16 @@ export default function SignUp(props) {
       if (response.data.success) {
         dispatchStore(login());
         dispatchStore(setToken(response.data.token));
-        dispatchStore(setCredential(state.username, state.password));
         console.log(response.data.userData);
         dispatchStore(setUserData(response.data.userData));
-        //hideme();
-        props.navigation.pop();
-        props.navigation.navigate(
-          //params && params.destination ? params.destination : "HomePage"
-          "HomePage"
+        dispatchStore(
+          setCredential(
+            response.data.userData.username,
+            response.data.userData.password
+          )
         );
+        hideme();
+        props.navigation.navigate("HomePage");
         CustomAlert(
           "Logged In",
           "You are logged in, seek help or help people around you"
@@ -163,84 +146,7 @@ export default function SignUp(props) {
               dispatch({ type: Values.username, value: text });
             }}
           ></TextInput>
-          <TextInput
-            editable
-            style={{ ...styles.input }}
-            placeholder="Name"
-            onChangeText={(text) => {
-              dispatch({ type: Values.name, value: text });
-            }}
-          ></TextInput>
-          <View
-            style={{
-              ...styles.input,
-            }}
-          >
-            <Picker
-              mode="dropdown"
-              selectedValue={state.gender}
-              style={{
-                ...styles.input,
-                marginLeft: -8,
-                width: "100%",
-              }}
-              onValueChange={(itemValue, itemIndex) =>
-                dispatch({ type: "gender", value: itemValue })
-              }
-            >
-              <Picker.Item label="Male" value="Male" />
-              <Picker.Item label="Female" value="Female" />
-              <Picker.Item label="Transgender" value="Transgender" />
-            </Picker>
-          </View>
 
-          <View
-            style={{
-              ...styles.input,
-            }}
-          >
-            <Picker
-              mode="dropdown"
-              selectedValue={state.selectedValue}
-              style={{
-                ...styles.input,
-                marginLeft: -8,
-                width: "100%",
-              }}
-              onValueChange={(itemValue, itemIndex) =>
-                dispatch({ type: "selectedValue", value: itemValue })
-              }
-            >
-              <Picker.Item
-                label="Profession"
-                value="Profession"
-                color={Colors.Placeholder}
-              />
-              <Picker.Item label="Student" value="Student" />
-              <Picker.Item label="Engineer" value="Engineer" />
-              <Picker.Item label="Other" value="Other" />
-            </Picker>
-          </View>
-          {state.selectedValue != "Student" &&
-            state.selectedValue != "Engineer" &&
-            state.selectedValue != "Profession" && (
-              <TextInput
-                editable
-                style={{ ...styles.input }}
-                placeholder="Enter Profession"
-                onChangeText={(text) => {
-                  dispatch({ type: "selectedValue", value: text });
-                }}
-              ></TextInput>
-            )}
-          <TextInput
-            editable
-            style={{ ...styles.input }}
-            placeholder="Age (25, 39)"
-            onChangeText={(text) => {
-              dispatch({ type: Values.age, value: text });
-            }}
-          ></TextInput>
           <TextInput
             editable
             style={{ ...styles.input }}
@@ -278,10 +184,7 @@ export default function SignUp(props) {
           hide={hideme}
           isVisible={state.otpModalVisible}
           username={state.username}
-          password={state.password}
-          destination={params.destination}
-          navigation={props.navigation}
-          action={signUp}
+          action={resetPassword}
         ></OtpModal>
       </ScrollView>
     </View>
@@ -291,42 +194,17 @@ export default function SignUp(props) {
 //`var headers;
 const validateData = (state) => {
   let usernameReg = /^\d{10}$/;
-  let ageReg = /^[1-9]\d$|^1\d\d$/;
-  let professionReg = /^[a-zA-Z][a-zA-Z ]*$/;
-  let nameReg = /^[a-zA-Z][a-zA-Z ]*$/;
+
   if (!state.username.match(usernameReg))
     return {
       status: false,
       msg: "Mobile number not valid(10 digits)",
     };
-  if (!state.name.match(nameReg))
-    return {
-      status: false,
-      msg: "Name not valid(Alphabaetical string)",
-    };
-  if (
-    !state.selectedValue.match(professionReg) ||
-    state.selectedValue == "Profession"
-  ) {
-    //console.error("Printing" + state.profession);
-    console.log("printing" + state.profession);
-    return {
-      status: false,
-      msg: "Profession not valid(Alphabaetical string)",
-    };
-  }
-  if (!state.age.match(ageReg))
-    return {
-      status: false,
-      msg: "Age not valid(10-199)",
-    };
-
   if (state.password == "" || state.confirmPassword == "")
     return {
       status: false,
       msg: "Password entries can't be empty",
     };
-
   if (state.password != state.confirmPassword)
     return {
       status: false,
@@ -339,12 +217,9 @@ const validateData = (state) => {
 
 const handleResponse = (response) => {
   if (response) {
-    //console.log(response.data.success);
+    console.log(response.data);
     if (response.data.success) return true;
-    CustomAlert(
-      "User Exists",
-      "You are already logged in with this number, please login"
-    );
+    CustomAlert("User Not Found", "Your account does not exist, please signup");
     return false;
   }
   return false;

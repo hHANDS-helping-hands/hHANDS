@@ -5,7 +5,7 @@
     "platforms": ["ios", "android", "web"],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/hhands.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -16,10 +16,22 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zrath.hhands",
+      "buildNumber": "1.0.0"
     },
     "androidStatusBar": {
       "backgroundColor": "#eeeeee"
+    },
+    "android": {
+      "package": "com.zrath.hhands",
+      "versionCode": 1,
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBp9rsue5x9eXKwTG4B5IL29zDBIyjHfwI"
+        }
+      }
     }
   }
 }

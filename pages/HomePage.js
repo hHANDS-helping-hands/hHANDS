@@ -1,12 +1,6 @@
-import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  Platform,
-  StatusBar,
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { StyleSheet, Text, View, Button, StatusBar, Image } from "react-native";
 import Color from "../constants/colors";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import ShowMap from "../components/MapPreview";
@@ -15,25 +9,87 @@ import debugMode from "../constants/debug";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import LoginModal from "../components/LoginModal";
 import Screens from "../constants/screens";
-import { HeaderButtons, Item } from "react-navigation-header-buttons";
-import HeaderButton from "../components/CustomButton";
-import { Colors } from "react-native/Libraries/NewAppScreen";
+import { getLocationHandler } from "../utilities/LocationHandler";
+import { AxiosGetReq } from "../utilities/AxiosReq";
+import { setLocation, setTicketList } from "../store/actions/inMemoryData";
 
 export default function HomePage(props) {
-  console.log("HomePage", props);
+  var isMounted = true;
+  const loggedIn = useSelector((state) => state.authentication.loggedIn);
+  const dispatchStore = useDispatch();
+  //const [location, setLocation] = useState(Config.initialLocation);
+  const [destination, setDestination] = useState("");
+  const [dataLoading, setDataLoading] = useState(false);
+  //const [markers, setMarkers] = useState([]);
+  const [isVisible, setIsVisible] = useState(false);
   const [mapView, setMapView] = useState({
     state: true,
     buttonText: "View in List",
   });
 
   const [titleHeight, setTitleHeight] = useState(0);
+  const location = useSelector((state) => state.inMemoryData.location);
+  const ticketList = useSelector((state) => state.inMemoryData.ticketList);
+  const userData = useSelector((state) => state.authentication.userData);
+
+  const fetchTickets = async (currentLocation) => {
+    if (!currentLocation) currentLocation = location;
+    let response = await AxiosGetReq(
+      {
+        long: currentLocation.longitude,
+        lat: currentLocation.latitude,
+      },
+      "/posts"
+    );
+    console.log(
+      "printing tickets in Homepage" +
+        JSON.stringify(response.data.message.length)
+    );
+    if (response && response.data.success) {
+      dispatchStore(setTicketList(response.data.message));
+      //setMarkers(response.data.message);
+    }
+  };
+
+  const fetchLocationThenTicket = async () => {
+    setDataLoading(true);
+    let currentLocation = await getLocationHandler();
+    if (currentLocation && currentLocation.coords) {
+      dispatchStore(
+        setLocation({
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+        })
+      );
+
+      await fetchTickets({
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+      });
+    }
+    setDataLoading(false);
+  };
+
+  useEffect(() => {
+    console.log("first render");
+    fetchLocationThenTicket();
+    return () => {
+      isMounted = false;
+      console.log("cleaned up, home page");
+    };
+  }, []);
+
   const handleAddDonee = () => {
-    props.navigation.navigate(Screens.DoneeDetailsPage);
-    console.log("add donee pressed");
+    if (loggedIn) props.navigation.navigate(Screens.DoneeDetailsPage);
+    else {
+      setDestination(Screens.DoneeDetailsPage);
+      setIsVisible(true);
+    }
+
+    //console.log("add donee pressed");
   };
 
   const handleViewInList = () => {
-    console.log(mapView.state);
     if (mapView.state)
       setMapView({
         state: false,
@@ -44,15 +100,21 @@ export default function HomePage(props) {
         state: true,
         buttonText: "View in List",
       });
-    console.log("view in list pressed");
+    //console.log("view in list pressed");
   };
 
-  const handleFilter = () => {
-    console.log("filter button pressed");
+  const handleFeedback = () => {
+    props.navigation.navigate(Screens.Feedback);
+    //console.log("filter button pressed");
   };
+
   const handleAccount = () => {
-    console.log("account icon clicked");
-    props.navigation.openDrawer();
+    if (loggedIn) props.navigation.navigate("ProfilePage");
+    else {
+      setDestination("ProfilePage");
+      setIsVisible(true);
+    }
+    //console.log("account icon clicked");
   };
 
   return (
@@ -61,6 +123,7 @@ export default function HomePage(props) {
         backgroundColor={Color.PrimaryColor}
         barStyle="light-content"
       />
+
       <View
         style={{ ...styles.header, ...debugMode.debug }}
         onLayout={(event) => {
@@ -68,52 +131,83 @@ export default function HomePage(props) {
         }}
       >
         <TouchableOpacity onPress={handleAccount}>
-          <MaterialIcons
-            name="account-circle"
-            size={36}
-            color={Color.PrimaryColor}
+          <Image
+            source={
+              userData && userData.gender == "Female"
+                ? require("../assets/avatars/girl1.png")
+                : require("../assets/avatars/boy1.png")
+            }
+            style={{ width: 36, height: 36 }}
           />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleViewInList}>
           <View style={styles.button}>
-            <Feather name="list" size={18} color={Color.White} />
+            {mapView.buttonText == "View in List" && (
+              <Feather name="list" size={18} color={Color.White} />
+            )}
             <Text style={styles.text}>{mapView.buttonText}</Text>
           </View>
-          <LoginModal></LoginModal>
+          <LoginModal
+            isVisible={isVisible}
+            setIsVisible={setIsVisible}
+            dispatchStore={dispatchStore}
+            destination={destination}
+            navigation={props.navigation}
+          ></LoginModal>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleFilter}>
+
+        <TouchableOpacity onPress={handleFeedback}>
           <View style={styles.button}>
-            <Feather name="filter" size={18} color={Color.White} />
-            <Text style={styles.text}>Filter</Text>
+            <Text style={styles.text}>Feedback</Text>
           </View>
         </TouchableOpacity>
-        {/* <Button title="View in List" color={Color.White}/>
-        <Button title="Filter" color={Color.White} /> */}
+
+        {}
       </View>
       <View
         style={{
-          position: "absolute",
+          ...styles.horBar,
           top: titleHeight,
-          left: 0,
-          //borderBottomColor: "#ffffff",
-          borderColor: Color.Placeholder,
-          borderBottomWidth: 0.8,
-          width: "100%",
-          height: 1,
-          zIndex: 0,
+          zIndex: mapView.state ? 0 : 1,
         }}
       ></View>
       <View style={{ ...styles.mapContainer, ...debugMode.debug }}>
         {mapView.state ? (
-          <ShowMap></ShowMap>
+          <View style={{ flex: 1, width: "100%" }}>
+            <ShowMap
+              coordinates={ticketList}
+              userLocation={location}
+              navigation={props.navigation}
+            ></ShowMap>
+            <View style={styles.gpsButton}>
+              <TouchableOpacity onPress={fetchLocationThenTicket}>
+                <MaterialIcons
+                  name="my-location"
+                  style={{
+                    color: Color.White,
+                    backgroundColor: Color.Placeholder,
+                    borderColor: Color.BlackLLL,
+                    borderWidth: 1,
+                  }}
+                  size={36}
+                  color="black"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
         ) : (
           <ShowList
-            style={{ ...debugMode.debug, backgroundColor: "pink" }}
+            style={{ backgroundColor: "pink" }}
             titleHeight={titleHeight}
+            marginBottom={60}
+            tickets={ticketList}
+            loading={dataLoading}
+            navigation={props.navigation}
+            onRefresh={fetchTickets}
           ></ShowList>
         )}
       </View>
-      <View style={{ ...styles.bottomBar, ...debugMode.debug }}>
+      <View style={styles.bottomBar}>
         <Button
           title="Add Donee"
           style={{ ...styles.addButton }}
@@ -131,6 +225,20 @@ const styles = StyleSheet.create({
     backgroundColor: Color.White,
     alignItems: "center",
     //marginTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+  },
+  gpsButton: {
+    position: "absolute",
+    bottom: 100,
+    right: 40,
+  },
+  horBar: {
+    position: "absolute",
+    left: 0,
+    //borderBottomColor: "#ffffff",
+    borderColor: Color.Placeholder,
+    borderBottomWidth: 0.8,
+    width: "100%",
+    height: 1,
   },
   mapContainer: {
     flex: 1,
@@ -175,23 +283,3 @@ const styles = StyleSheet.create({
     paddingLeft: 4,
   },
 });
-
-HomePage.navigationOptions = (navData) => {
-  return {
-    headerTitle: "HomePage",
-    headerLeft: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Menu"
-          iconName="ios-menu"
-          onPress={() => {
-            console.log("Menu button clicked");
-            navData.navigation.toggleDrawer();
-          }}
-          color={Colors.PrimaryColor}
-        />
-      </HeaderButtons>
-    ),
-  };
-};
-console.log("HomePage after setting navigationOption", HomePage);

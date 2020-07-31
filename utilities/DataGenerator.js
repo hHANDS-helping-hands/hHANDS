@@ -43,7 +43,7 @@ const generateData = (n) => {
       key: i + "",
     });
   }
-  data.push({ key: i + 1 + "" });
+  //data.push({ key: i + 1 + "" });
 
   return data;
 };

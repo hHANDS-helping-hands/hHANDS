@@ -8,8 +8,20 @@ import ShowVideo from "../pages/ShowVideo";
 import TestMe from "../pages/TestMe";
 import Signup from "../pages/Signup";
 import Color from "../constants/colors";
+import DebugScreen from "../pages/DebugScreen";
+import LocationScreen from "../pages/LocationScreen";
+import ProfilePage from "../pages/ProfilePage";
+import ShowDoneeDetails from "../pages/ShowDoneeDetails";
+import Feedback from "../pages/Feedback";
+import ForgotPassword from "../pages/ForgotPassword";
 
 const Navigator = createStackNavigator({
+  DebugScreen: {
+    screen: DebugScreen,
+    navigationOptions: {
+      headerShown: false,
+    },
+  },
   SplashScreen: {
     screen: SplashScreen,
     navigationOptions: {
@@ -41,11 +53,14 @@ const Navigator = createStackNavigator({
   Signup: {
     screen: Signup,
     navigationOptions: {
+      headerTintColor: Color.White,
+      title: "SignUp",
       headerStyle: {
         backgroundColor: Color.PrimaryColor,
       },
       headerTitleStyle: {
-        color: Color.White,
+        fontWeight: "normal",
+        fontSize: 18,
       },
     },
   },
@@ -54,8 +69,78 @@ const Navigator = createStackNavigator({
     screen: TestMe,
   },
 
-  ShowVideo: {
-    screen: ShowVideo,
+  LocationScreen: {
+    screen: LocationScreen,
+    navigationOptions: {
+      headerTintColor: Color.White,
+      title: "Donee Details",
+      headerStyle: {
+        backgroundColor: Color.PrimaryColor,
+      },
+      headerTitleStyle: {
+        fontWeight: "normal",
+        fontSize: 18,
+      },
+    },
+  },
+
+  ShowDoneeDetails: {
+    screen: ShowDoneeDetails,
+    navigationOptions: {
+      headerTintColor: Color.White,
+      title: "ShowDoneeDetails",
+      headerStyle: {
+        backgroundColor: Color.PrimaryColor,
+      },
+      headerTitleStyle: {
+        fontWeight: "normal",
+        fontSize: 18,
+      },
+    },
+  },
+
+  ProfilePage: {
+    screen: ProfilePage,
+    navigationOptions: {
+      headerTintColor: Color.White,
+      title: "ProfilePage",
+      headerStyle: {
+        backgroundColor: Color.PrimaryColor,
+      },
+      headerTitleStyle: {
+        fontWeight: "normal",
+        fontSize: 18,
+      },
+    },
+  },
+
+  Feedback: {
+    screen: Feedback,
+    navigationOptions: {
+      headerTintColor: Color.White,
+      title: "Feedback",
+      headerStyle: {
+        backgroundColor: Color.PrimaryColor,
+      },
+      headerTitleStyle: {
+        fontWeight: "normal",
+        fontSize: 18,
+      },
+    },
+  },
+  ForgotPassword: {
+    screen: ForgotPassword,
+    navigationOptions: {
+      headerTintColor: Color.White,
+      title: "ForgotPassword",
+      headerStyle: {
+        backgroundColor: Color.PrimaryColor,
+      },
+      headerTitleStyle: {
+        fontWeight: "normal",
+        fontSize: 18,
+      },
+    },
   },
 });
 
@@ -68,4 +153,4 @@ const mainNavigator = createDrawerNavigator(
   }
 );
 
-export default createAppContainer(mainNavigator);
+export default createAppContainer(Navigator);
