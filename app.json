@@ -8,8 +8,8 @@
     "icon": "./assets/hhands.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#527318"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -21,7 +21,8 @@
       "buildNumber": "1.0.2"
     },
     "androidStatusBar": {
-      "backgroundColor": "#eeeeee"
+      "backgroundColor": "#527318",
+      "barStyle": "light-content"
     },
     "android": {
       "package": "com.zrath.hhands",
