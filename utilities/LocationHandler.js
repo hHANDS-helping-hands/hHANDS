@@ -28,8 +28,8 @@ const getLocationHandler = async (setIsFetching, timeout = 5000) => {
     return location;
   } catch (error) {
     Alert.alert(
-      "could not fetch location",
-      "Please try again or pick a location on map",
+      "Could not fetch location",
+      "Please press recenter location button, or try again later",
       [{ text: "Okay" }]
     );
     return false;

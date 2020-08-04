@@ -79,15 +79,15 @@ export default function ProfilePage(props) {
             marginRight: 4,
           }}
         >
-          <TouchableOpacity>
-            <Image
-              source={
-                userData && userData.gender == "Female"
-                  ? require("../assets/avatars/girl1.png")
-                  : require("../assets/avatars/boy1.png")
-              }
-            />
-          </TouchableOpacity>
+          {/* <TouchableOpacity> */}
+          <Image
+            source={
+              userData && userData.gender == "Female"
+                ? require("../assets/avatars/girl1.png")
+                : require("../assets/avatars/boy1.png")
+            }
+          />
+          {/* </TouchableOpacity> */}
           <Text style={{ fontSize: 20, color: "#444444" }}>
             {userData ? userData.name : ""}
           </Text>

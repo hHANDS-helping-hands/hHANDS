@@ -23,6 +23,7 @@ const initialState = {
   contact: "",
   gender: "Male",
   problem: "Need Food",
+  otherProblem: "",
   address: "",
   location: "",
   description: "",
@@ -41,6 +42,8 @@ const reducer = (state, action) => {
       return { ...state, gender: action.value };
     case "problem":
       return { ...state, problem: action.value };
+    case "otherProblem":
+      return { ...state, otherProblem: action.value };
     case "address":
       return { ...state, address: action.value };
     case "location":
@@ -95,7 +98,7 @@ export default function DoneeDetailsPage(props) {
         name: state.name,
         gend: state.gender,
         cont: state.contact,
-        prob: state.problem,
+        prob: state.problem == "Other" ? state.otherProblem : state.problem,
         desc: state.description,
         num: state.numMembers,
         addr: state.address,
@@ -166,6 +169,9 @@ export default function DoneeDetailsPage(props) {
         barStyle="light-content"
       />
       <ScrollView contentContainerStyle={{ padding: 24 }}>
+        <Text style={{ color: Color.BlackLLL }}>
+          ** This data will be shared with our users **
+        </Text>
         <Text style={styles.text}>Name</Text>
         <TextInput
           style={styles.textInput}
@@ -242,15 +248,14 @@ export default function DoneeDetailsPage(props) {
             <Picker.Item label="Other" value="Other" />
           </Picker>
         </View>
-        {state.problem != "Need Food" &&
-          state.problem != "Need Medical Attention" && (
-            <TextInput
-              style={styles.textInput}
-              onChangeText={(text) => {
-                dispatch({ type: "problem", value: text });
-              }}
-            ></TextInput>
-          )}
+        {state.problem == "Other" && (
+          <TextInput
+            style={styles.textInput}
+            onChangeText={(text) => {
+              dispatch({ type: "otherProblem", value: text });
+            }}
+          ></TextInput>
+        )}
         {state.address != "" && (
           <View>
             <Text style={{ color: Color.BlackL, fontWeight: "bold" }}>
@@ -330,6 +335,13 @@ const validateData = (state) => {
     };
 
   if (state.problem == "") {
+    //console.error("Printing" + state.profession);
+    return {
+      status: false,
+      msg: "Problem can't be empty",
+    };
+  }
+  if (state.problem == "Other" && state.otherProblem == "") {
     //console.error("Printing" + state.profession);
     return {
       status: false,
