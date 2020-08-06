@@ -57,7 +57,11 @@ export default function OtpModal(props) {
   }, []);
 
   return (
-    <Modal isVisible={props.isVisible} onBackdropPress={props.hide}>
+    <Modal
+      isVisible={props.isVisible}
+      onBackdropPress={props.hide}
+      onRequestClose={props.hide}
+    >
       <View style={{ ...styles.container }}>
         <HelpingHands textColor={Color.PrimaryColor} />
         <TextInput

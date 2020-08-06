@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { StyleSheet, Text, View, Button, StatusBar, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  StatusBar,
+  Image,
+  Switch,
+} from "react-native";
 import Color from "../constants/colors";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import ShowMap from "../components/MapPreview";
@@ -17,14 +25,13 @@ export default function HomePage(props) {
   var isMounted = true;
   const loggedIn = useSelector((state) => state.authentication.loggedIn);
   const dispatchStore = useDispatch();
-  //const [location, setLocation] = useState(Config.initialLocation);
   const [destination, setDestination] = useState("");
   const [dataLoading, setDataLoading] = useState(false);
-  //const [markers, setMarkers] = useState([]);
+
   const [isVisible, setIsVisible] = useState(false);
   const [mapView, setMapView] = useState({
     state: true,
-    buttonText: "View in List",
+    buttonText: "Map",
   });
 
   const [titleHeight, setTitleHeight] = useState(0);
@@ -89,19 +96,19 @@ export default function HomePage(props) {
     //console.log("add donee pressed");
   };
 
-  const handleViewInList = () => {
-    if (mapView.state)
-      setMapView({
-        state: false,
-        buttonText: "View in Map",
-      });
-    else
-      setMapView({
-        state: true,
-        buttonText: "View in List",
-      });
-    //console.log("view in list pressed");
-  };
+  // const handleViewInList = () => {
+  //   if (mapView.state)
+  //     setMapView({
+  //       state: false,
+  //       buttonText: "View in Map",
+  //     });
+  //   else
+  //     setMapView({
+  //       state: true,
+  //       buttonText: "View in List",
+  //     });
+  //   //console.log("view in list pressed");
+  // };
 
   const handleFeedback = () => {
     props.navigation.navigate(Screens.Feedback);
@@ -130,6 +137,17 @@ export default function HomePage(props) {
           setTitleHeight(event.nativeEvent.layout.height);
         }}
       >
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            backgroundColor: mapView.state ? Color.Black : Color.White,
+            opacity: mapView.state ? 0.2 : 1,
+          }}
+        ></View>
         <TouchableOpacity onPress={handleAccount}>
           <Image
             source={
@@ -140,35 +158,45 @@ export default function HomePage(props) {
             style={{ width: 36, height: 36 }}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleViewInList}>
-          <View style={styles.button}>
-            {mapView.buttonText == "View in List" && (
-              <Feather name="list" size={18} color={Color.White} />
-            )}
-            <Text style={styles.text}>{mapView.buttonText}</Text>
-          </View>
-          <LoginModal
-            isVisible={isVisible}
-            setIsVisible={setIsVisible}
-            dispatchStore={dispatchStore}
-            destination={destination}
-            navigation={props.navigation}
-          ></LoginModal>
-        </TouchableOpacity>
+        <View style={{ ...styles.button, paddingRight: 8 }}>
+          <Switch
+            onValueChange={() => {
+              console.log("value changed");
+              setMapView(
+                mapView.state
+                  ? { state: false, buttonText: "List" }
+                  : { state: true, buttonText: "Map" }
+              );
+            }}
+            thumbColor={Color.SecondaryColor}
+            trackColor={{
+              true: Color.White,
+              false: Color.BlackLLL,
+            }}
+            value={mapView.state}
+          />
+          <Text style={styles.text}>{mapView.buttonText}</Text>
+        </View>
+        <LoginModal
+          isVisible={isVisible}
+          setIsVisible={setIsVisible}
+          dispatchStore={dispatchStore}
+          destination={destination}
+          navigation={props.navigation}
+        ></LoginModal>
 
         <TouchableOpacity onPress={handleFeedback}>
           <View style={styles.button}>
             <Text style={styles.text}>Feedback</Text>
           </View>
         </TouchableOpacity>
-
         {}
       </View>
       <View
         style={{
           ...styles.horBar,
           top: titleHeight,
-          zIndex: mapView.state ? 0 : 1,
+          zIndex: 10,
         }}
       ></View>
       <View style={{ ...styles.mapContainer, ...debugMode.debug }}>
@@ -262,10 +290,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    padding: 18,
+    padding: 14,
     margin: 0,
-    paddingLeft: 4,
-    paddingRight: 4,
+    paddingLeft: 10,
+    paddingRight: 10,
     alignItems: "center",
     zIndex: 1,
   },
