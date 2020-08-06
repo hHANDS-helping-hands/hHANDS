@@ -35,6 +35,7 @@ const initialState = {
   confirmPassword: "",
   accuracy: 0,
   selectedValue: "Profession",
+  otherValue: "",
   gender: "Male",
   showError: "",
   otpModalVisible: false,
@@ -66,6 +67,8 @@ const reducer = (state, action) => {
       return { ...state, otpModalVisible: action.value };
     case "isVisible":
       return { ...state, isVisible: action.value };
+    case "otherValue":
+      return { ...state, otherValue: action.value };
     default:
       return;
   }
@@ -104,7 +107,10 @@ export default function SignUp(props) {
         pass: state.password,
         gend: state.gender,
         name: state.name,
-        prof: state.selectedValue,
+        prof:
+          state.selectedValue == "Other"
+            ? state.otherValue
+            : state.selectedValue,
         age: state.age,
       },
       "/signup",
@@ -153,6 +159,7 @@ export default function SignUp(props) {
       <ScrollView style={{ flex: 1, backgroundColor: Color.White }}>
         <View style={{ ...styles.container }}>
           <HelpingHands textColor={Color.PrimaryColor} />
+
           <TextInput
             autoCompleteType="off"
             editable
@@ -221,18 +228,16 @@ export default function SignUp(props) {
               <Picker.Item label="Other" value="Other" />
             </Picker>
           </View>
-          {state.selectedValue != "Student" &&
-            state.selectedValue != "Engineer" &&
-            state.selectedValue != "Profession" && (
-              <TextInput
-                editable
-                style={{ ...styles.input }}
-                placeholder="Enter Profession"
-                onChangeText={(text) => {
-                  dispatch({ type: "selectedValue", value: text });
-                }}
-              ></TextInput>
-            )}
+          {state.selectedValue == "Other" && (
+            <TextInput
+              editable
+              style={{ ...styles.input }}
+              placeholder="Enter Profession"
+              onChangeText={(text) => {
+                dispatch({ type: "otherValue", value: text });
+              }}
+            ></TextInput>
+          )}
           <TextInput
             editable
             style={{ ...styles.input }}
@@ -255,8 +260,6 @@ export default function SignUp(props) {
             style={{ ...styles.input }}
             placeholder="Confirm Password"
             secureTextEntry={true}
-            numberOfLines={10}
-            multiline
             onChangeText={(text) => {
               dispatch({ type: Values.confirmPassword, value: text });
             }}
@@ -266,6 +269,7 @@ export default function SignUp(props) {
               {state.showError}
             </Text>
           )}
+
           <View style={{ ...styles.buttonContainer }}>
             <Button
               title="Verify Otp"
@@ -273,6 +277,9 @@ export default function SignUp(props) {
               onPress={showme}
             ></Button>
           </View>
+          <Text style={{ color: Color.BlackLLL }}>
+            ** This data will not be shared with any donor or donee **
+          </Text>
         </View>
         <OtpModal
           hide={hideme}
@@ -307,6 +314,17 @@ const validateData = (state) => {
   if (
     !state.selectedValue.match(professionReg) ||
     state.selectedValue == "Profession"
+  ) {
+    //console.error("Printing" + state.profession);
+    console.log("printing" + state.profession);
+    return {
+      status: false,
+      msg: "Profession not valid(Alphabaetical string)",
+    };
+  }
+  if (
+    state.selectedValue == "Other" &&
+    !state.otherValue.match(professionReg)
   ) {
     //console.error("Printing" + state.profession);
     console.log("printing" + state.profession);
@@ -375,6 +393,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 40,
+    marginBottom: 8,
     width: "50%",
     justifyContent: "center",
   },
