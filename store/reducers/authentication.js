@@ -10,6 +10,9 @@ import { storeData, Keys } from "../../utilities/AsyncStorage";
 
 const initialState = {
   loggedIn: false,
+  userData: null,
+  loginCredential: null,
+  token: null,
 };
 const authentication = (state = initialState, action) => {
   switch (action.type) {

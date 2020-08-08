@@ -19,6 +19,7 @@ import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { AxiosGetReq, AxiosPostReq } from "../utilities/AxiosReq";
 import { useSelector } from "react-redux";
 import { getData, Keys, storeData } from "../utilities/AsyncStorage";
+import { TextValues } from "../constants/stringValues";
 
 export default function Feedback(props) {
   var isMounted = true;
@@ -68,30 +69,32 @@ export default function Feedback(props) {
   }
 
   async function postFeedback() {
-    setFeedback("");
-    setloading(true);
-    const response = await AxiosPostReq(
-      { sender: username, msg: feedback, to: "hhands" },
-      "/feedback"
-    );
-    //console.log(response.data);
+    if (feedback) {
+      setFeedback("");
+      setloading(true);
+      const response = await AxiosPostReq(
+        { sender: username, msg: feedback, to: "hhands" },
+        "/feedback"
+      );
+      //console.log(response.data);
 
-    setloading(false);
+      setloading(false);
 
-    if (response && response.data.success && isMounted) {
-      setmsglist([
-        { to: "hhands", msg: feedback, sender: username + "" },
-        ...msglist,
-      ]);
-    }
+      if (response && response.data.success && isMounted) {
+        setmsglist([
+          { to: "hhands", msg: feedback, sender: username + "" },
+          ...msglist,
+        ]);
+      }
 
-    if (!loggedIn) {
-      let tempList = msglist.splice(0, 20);
-      tempList.reverse();
-      storeData(Keys.feedbackList, [
-        ...tempList,
-        { to: "hhands", msg: feedback, sender: username + "" },
-      ]);
+      if (!loggedIn) {
+        let tempList = msglist.splice(0, 20);
+        tempList.reverse();
+        storeData(Keys.feedbackList, [
+          ...tempList,
+          { to: "hhands", msg: feedback, sender: username + "" },
+        ]);
+      }
     }
   }
 
@@ -124,17 +127,16 @@ export default function Feedback(props) {
         <Text
           style={{
             color: Color.Placeholder,
-            fontSize: 22,
+            fontSize: 16,
             textAlign: "center",
             lineHeight: 30,
             marginBottom: 20,
-            padding: 8,
+            padding: 24,
           }}
         >
-          We will be delighted to have your suggestions. Thanks For helping us
-          improve hhands.
+          {TextValues.feedbackWelcomeNote}
         </Text>
-        <Text
+        {/* <Text
           style={{
             color: Color.Placeholder,
             fontSize: 22,
@@ -145,7 +147,7 @@ export default function Feedback(props) {
         >
           Your support will help us extending out our helping hands to the ones
           in need.
-        </Text>
+        </Text> */}
       </View>
       <FlatList
         ListFooterComponent={renderFooter}
@@ -198,20 +200,21 @@ export default function Feedback(props) {
           }}
           value={feedback}
           style={{
-            borderColor: Color.PrimaryColor,
-            borderWidth: 1,
+            borderColor: Color.SecondaryColor,
+            borderWidth: 2,
             borderRadius: 4,
+            padding: 4,
             textAlignVertical: "top",
             backgroundColor: "white",
             marginBottom: 0,
             paddingLeft: 4,
             flex: 1,
-
+            marginRight: 4,
             //width: "75%",
           }}
         ></TextInput>
         <TouchableOpacity onPress={postFeedback}>
-          <MaterialIcons name="send" size={36} color={Color.PrimaryColor} />
+          <MaterialIcons name="send" size={36} color={Color.SecondaryColor} />
         </TouchableOpacity>
       </View>
     </View>

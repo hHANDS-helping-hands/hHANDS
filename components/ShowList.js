@@ -32,7 +32,18 @@ export default function ShowList(props) {
           <ActivityIndicator animating size="small" />
         </View>
       );
-    else return <View style={{ height: 4 }}></View>;
+    else if (props.showNoDoneeFound) {
+      if (props.tickets.length == 0)
+        return (
+          <View style={{ padding: 16 }}>
+            <Text style={{ color: Color.BlackLL, paddingRight: 16 }}>
+              We could not find any DONEE around you. Please add people in need
+              as DONEE to help them. Happy helping.
+            </Text>
+          </View>
+        );
+    }
+    return <View style={{ height: 4 }}></View>;
   };
 
   const refreshHandler = async () => {
@@ -118,7 +129,7 @@ export default function ShowList(props) {
                     {time}
                   </Text>
                 </View>
-                <Text style={{ color: Color.SecondaryColor, fontSize: 16 }}>
+                <Text style={{ color: Color.SecondaryColor, fontSize: 14 }}>
                   {item.problem}
                 </Text>
                 <Text style={{ color: Color.BlackLL, fontSize: 14 }}>
@@ -138,7 +149,7 @@ const styles = StyleSheet.create({
     margin: 4,
   },
   name: {
-    fontSize: 18,
+    fontSize: 16,
     color: Color.BlackL,
     marginLeft: 4,
   },

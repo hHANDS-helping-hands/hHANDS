@@ -14,18 +14,19 @@ import Colors from "../constants/colors";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import debugMode from "../constants/debug";
 import Color from "../constants/colors";
-import axios from "axios";
 import OtpModal from "../components/OtpModal";
-import Values from "../constants/stringValues";
+import Values, { ErrorMsgs } from "../constants/stringValues";
 import { AxiosGetReq } from "../utilities/AxiosReq";
 import CustomAlert from "../utilities/CustomAlert";
 import { useDispatch, useSelector } from "react-redux";
+import { Placeholders, PickerLabels } from "../constants/stringValues";
 import {
   setToken,
   setCredential,
   login,
   setUserData,
 } from "../store/actions/authentication";
+import { Alerts } from "../constants/stringValues";
 
 const initialState = {
   username: "",
@@ -35,6 +36,7 @@ const initialState = {
   confirmPassword: "",
   accuracy: 0,
   selectedValue: "Profession",
+  otherValue: "",
   gender: "Male",
   showError: "",
   otpModalVisible: false,
@@ -66,6 +68,8 @@ const reducer = (state, action) => {
       return { ...state, otpModalVisible: action.value };
     case "isVisible":
       return { ...state, isVisible: action.value };
+    case "otherValue":
+      return { ...state, otherValue: action.value };
     default:
       return;
   }
@@ -104,7 +108,10 @@ export default function SignUp(props) {
         pass: state.password,
         gend: state.gender,
         name: state.name,
-        prof: state.selectedValue,
+        prof:
+          state.selectedValue == "Other"
+            ? state.otherValue
+            : state.selectedValue,
         age: state.age,
       },
       "/signup",
@@ -124,10 +131,7 @@ export default function SignUp(props) {
           //params && params.destination ? params.destination : "HomePage"
           "HomePage"
         );
-        CustomAlert(
-          "Logged In",
-          "You are logged in, seek help or help people around you"
-        );
+        CustomAlert(Alerts.loggedIn.title, Alerts.loggedIn.description);
       }
     }
   };
@@ -153,6 +157,7 @@ export default function SignUp(props) {
       <ScrollView style={{ flex: 1, backgroundColor: Color.White }}>
         <View style={{ ...styles.container }}>
           <HelpingHands textColor={Color.PrimaryColor} />
+
           <TextInput
             autoCompleteType="off"
             editable
@@ -221,22 +226,20 @@ export default function SignUp(props) {
               <Picker.Item label="Other" value="Other" />
             </Picker>
           </View>
-          {state.selectedValue != "Student" &&
-            state.selectedValue != "Engineer" &&
-            state.selectedValue != "Profession" && (
-              <TextInput
-                editable
-                style={{ ...styles.input }}
-                placeholder="Enter Profession"
-                onChangeText={(text) => {
-                  dispatch({ type: "selectedValue", value: text });
-                }}
-              ></TextInput>
-            )}
+          {state.selectedValue == "Other" && (
+            <TextInput
+              editable
+              style={{ ...styles.input }}
+              placeholder="Enter Profession"
+              onChangeText={(text) => {
+                dispatch({ type: "otherValue", value: text });
+              }}
+            ></TextInput>
+          )}
           <TextInput
             editable
             style={{ ...styles.input }}
-            placeholder="Age (25, 39)"
+            placeholder={Placeholders.age}
             onChangeText={(text) => {
               dispatch({ type: Values.age, value: text });
             }}
@@ -255,8 +258,6 @@ export default function SignUp(props) {
             style={{ ...styles.input }}
             placeholder="Confirm Password"
             secureTextEntry={true}
-            numberOfLines={10}
-            multiline
             onChangeText={(text) => {
               dispatch({ type: Values.confirmPassword, value: text });
             }}
@@ -266,6 +267,7 @@ export default function SignUp(props) {
               {state.showError}
             </Text>
           )}
+
           <View style={{ ...styles.buttonContainer }}>
             <Button
               title="Verify Otp"
@@ -273,6 +275,9 @@ export default function SignUp(props) {
               onPress={showme}
             ></Button>
           </View>
+          <Text style={{ color: Color.BlackLLL }}>
+            ** This data will not be shared with any donor or donee **
+          </Text>
         </View>
         <OtpModal
           hide={hideme}
@@ -297,12 +302,12 @@ const validateData = (state) => {
   if (!state.username.match(usernameReg))
     return {
       status: false,
-      msg: "Mobile number not valid(10 digits)",
+      msg: ErrorMsgs.mobileNoTenDigits,
     };
   if (!state.name.match(nameReg))
     return {
       status: false,
-      msg: "Name not valid(Alphabaetical string)",
+      msg: ErrorMsgs.nameAlphabaetical,
     };
   if (
     !state.selectedValue.match(professionReg) ||
@@ -312,25 +317,36 @@ const validateData = (state) => {
     console.log("printing" + state.profession);
     return {
       status: false,
-      msg: "Profession not valid(Alphabaetical string)",
+      msg: ErrorMsgs.professionAlphabaetical,
+    };
+  }
+  if (
+    state.selectedValue == "Other" &&
+    !state.otherValue.match(professionReg)
+  ) {
+    //console.error("Printing" + state.profession);
+    console.log("printing" + state.profession);
+    return {
+      status: false,
+      msg: ErrorMsgs.professionAlphabaetical,
     };
   }
   if (!state.age.match(ageReg))
     return {
       status: false,
-      msg: "Age not valid(10-199)",
+      msg: ErrorMsgs.ageNotValid,
     };
 
   if (state.password == "" || state.confirmPassword == "")
     return {
       status: false,
-      msg: "Password entries can't be empty",
+      msg: ErrorMsgs.passwordEmpty,
     };
 
   if (state.password != state.confirmPassword)
     return {
       status: false,
-      msg: "Confirm password entry does not match password",
+      msg: ErrorMsgs.confirmPasswordNotMatch,
     };
   return {
     status: true,
@@ -341,10 +357,7 @@ const handleResponse = (response) => {
   if (response) {
     //console.log(response.data.success);
     if (response.data.success) return true;
-    CustomAlert(
-      "User Exists",
-      "You are already logged in with this number, please login"
-    );
+    CustomAlert(Alerts.userExists.title, Alerts.userExists.description);
     return false;
   }
   return false;
@@ -375,6 +388,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 40,
+    marginBottom: 8,
     width: "50%",
     justifyContent: "center",
   },

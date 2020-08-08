@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useReducer, useEffect } from "react";
 import {
   Text,
   View,
@@ -13,8 +13,7 @@ import Colors from "../constants/colors";
 import { TextInput } from "react-native-gesture-handler";
 import debugMode from "../constants/debug";
 import Color from "../constants/colors";
-import axios from "axios";
-import { AxiosGetReq, AxiosPostReq } from "../utilities/AxiosReq";
+import { AxiosPostReq } from "../utilities/AxiosReq";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setCredential,
@@ -24,6 +23,7 @@ import {
 } from "../store/actions/authentication";
 import CustomAlert from "../utilities/CustomAlert";
 import Screens from "../constants/screens";
+import { Alerts } from "../constants/stringValues";
 
 const initialState = {
   mobileNo: "",
@@ -54,6 +54,10 @@ export default function LoginModal(props) {
   //const [isVisible, setIsVisible] = useState(false);
 
   const hideMe = () => {
+    dispatch({ type: "showError", data: "" });
+    dispatch({ type: "password", password: "" });
+    dispatch({ type: "mobileNo", mobileNo: "" });
+    dispatch({ type: "disableLoginButton", data: false });
     props.setIsVisible(false);
   };
   const dispatchStore = useDispatch();
@@ -71,7 +75,7 @@ export default function LoginModal(props) {
     // cleanup function
     return () => {
       Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
-      //Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
+      dispatch({ type: "showError", data: "" });
     };
   }, []);
 
@@ -172,10 +176,7 @@ const LoginHandler = async (state, dispatchStore, dispatch, hideMe, props) => {
       console.log(response.data.token);
       hideMe();
       props.navigation.navigate(props.destination);
-      CustomAlert(
-        "Logged In",
-        "You are logged in, seek help or help people around you"
-      );
+      CustomAlert(Alerts.loggedIn.title, Alerts.loggedIn.description);
       console.log("navigated");
     }
     dispatch({ type: "disableLoginButton", data: false });

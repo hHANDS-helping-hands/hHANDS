@@ -1,5 +1,6 @@
 import CustomAlert from "./CustomAlert";
 import NoInternetAlert from "./NoInternetAlert";
+import { Alerts } from "../constants/stringValues";
 
 export default function checkInternet() {
   //do check if server is up.
@@ -8,9 +9,6 @@ export default function checkInternet() {
   const connectGoogle = true;
 
   if (connectGoogle)
-    CustomAlert(
-      "No Response",
-      "Our server is not responding, please bear with down time"
-    );
+    CustomAlert(Alerts.noResponse.title, Alerts.noResponse.description);
   else if (!connectGoogle) NoInternetAlert();
 }

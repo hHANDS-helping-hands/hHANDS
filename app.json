@@ -3,13 +3,13 @@
     "name": "hHANDS",
     "slug": "hHANDS",
     "platforms": ["ios", "android", "web"],
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/hhands.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splashScreen.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#527318"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -18,14 +18,15 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.zrath.hhands",
-      "buildNumber": "1.0.2"
+      "buildNumber": "1.0.3"
     },
     "androidStatusBar": {
-      "backgroundColor": "#eeeeee"
+      "backgroundColor": "#527318",
+      "barStyle": "light-content"
     },
     "android": {
       "package": "com.zrath.hhands",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
       "config": {
         "googleMaps": {

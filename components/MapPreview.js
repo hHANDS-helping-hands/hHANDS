@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Text, View, Image, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import debugmode from "../constants/debug";
@@ -7,6 +7,7 @@ import { MaterialIcons, Feather } from "@expo/vector-icons";
 import Color from "../constants/colors";
 import ShowDoneeDetails from "../pages/ShowDoneeDetails";
 import { hasStartedLocationUpdatesAsync } from "expo-location";
+import Config from "../utilities/Config";
 export default function MapPreview(props) {
   const mapRegion = {
     latitude: props.userLocation.latitude,
@@ -17,6 +18,7 @@ export default function MapPreview(props) {
   const tappedLocation = props.tappedLocation;
   const setTappedLocation = props.setTappedLocation;
   var marker = null;
+
   const selectPlaceHandler = (event) => {
     if (setTappedLocation)
       setTappedLocation({
@@ -24,6 +26,7 @@ export default function MapPreview(props) {
         longitude: event.nativeEvent.coordinate.longitude,
       });
   };
+
   return (
     <MapView
       key={0}
@@ -42,13 +45,17 @@ export default function MapPreview(props) {
               longitude: item.location.coordinates[0],
               latitude: item.location.coordinates[1],
             }}
+            ref={(_marker) => {
+              if (index == 0 && _marker) {
+                _marker.showCallout();
+              }
+            }}
             onCalloutPress={() => {
-              //console.log("Callout pressed");
               props.navigation.navigate("ShowDoneeDetails", { ticket: item });
             }}
             title={item.name}
             description={item.problem}
-            pinColor="red"
+            pinColor={Color.SecondaryColor}
             style={debugmode.debug}
           />
         ))}
@@ -59,7 +66,7 @@ export default function MapPreview(props) {
             marker = _marker;
           }}
           description="description"
-          pinColor="red"
+          pinColor={Color.SecondaryColor}
           coordinate={tappedLocation}
           onPress={() => {
             marker.hideCallout();

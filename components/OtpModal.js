@@ -42,22 +42,32 @@ export default function OtpModal(props) {
 
   const username = props.username;
 
+  const hideHandler = () => {
+    dispatch({ type: "showError", data: "" });
+    dispatch({ type: Values.otp, value: "" });
+    props.hide();
+  };
+
   const [state, dispatch] = useReducer(reducer, initialState);
   const dispatchStore = useDispatch();
 
   const _keyboardDidShow = () => {
     dispatch({ type: "showError", data: "" });
   };
-
   useEffect(() => {
     Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
     return () => {
       Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+      dispatch({ type: "showError", data: "" });
     };
   }, []);
 
   return (
-    <Modal isVisible={props.isVisible} onBackdropPress={props.hide}>
+    <Modal
+      isVisible={props.isVisible}
+      onBackdropPress={hideHandler}
+      onRequestClose={hideHandler}
+    >
       <View style={{ ...styles.container }}>
         <HelpingHands textColor={Color.PrimaryColor} />
         <TextInput
@@ -102,7 +112,13 @@ const otpHandler = async (otp, props, dispatchStore, dispatch) => {
       props.action(response.data.token);
       return;
     }
-    dispatch({ type: "showError", value: response.data.message });
+    dispatch({
+      type: "showError",
+      value:
+        response.data.message == "Bad Otp"
+          ? "Wrong otp"
+          : response.data.message,
+    });
     return;
   }
 };
