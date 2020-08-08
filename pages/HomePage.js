@@ -20,6 +20,7 @@ import Screens from "../constants/screens";
 import { getLocationHandler } from "../utilities/LocationHandler";
 import { AxiosGetReq } from "../utilities/AxiosReq";
 import { setLocation, setTicketList } from "../store/actions/inMemoryData";
+import CustomAlert from "../utilities/CustomAlert";
 
 export default function HomePage(props) {
   var isMounted = true;
@@ -53,6 +54,12 @@ export default function HomePage(props) {
         JSON.stringify(response.data.message.length)
     );
     if (response && response.data.success) {
+      if (response.data.message.length == 0) {
+        CustomAlert(
+          "No Donee Found",
+          "We could not find any DONEE around you. Please add people in need as DONEE to help them. \nHappy helping."
+        );
+      }
       dispatchStore(setTicketList(response.data.message));
       //setMarkers(response.data.message);
     }
@@ -232,6 +239,7 @@ export default function HomePage(props) {
             loading={dataLoading}
             navigation={props.navigation}
             onRefresh={fetchTickets}
+            showNoDoneeFound={true}
           ></ShowList>
         )}
       </View>
@@ -307,7 +315,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: Color.White,
-    fontSize: 18,
+    fontSize: 16,
     paddingLeft: 4,
   },
 });

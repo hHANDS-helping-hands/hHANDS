@@ -45,6 +45,8 @@ export default function ProfilePage(props) {
     //console.log(response.data);
     if (isMounted && response && response.data.success) {
       setData(response.data.message);
+    } else if (!response.data.success) {
+      props.navigation.goBack();
     }
     setDataLoading(false);
   };
@@ -72,6 +74,7 @@ export default function ProfilePage(props) {
         <Card
           style={{
             alignItems: "center",
+            marginTop: 8,
             marginBottom: 4,
             shadowRadius: 0,
             borderRadius: 2,
@@ -88,7 +91,9 @@ export default function ProfilePage(props) {
             }
           />
           {/* </TouchableOpacity> */}
-          <Text style={{ fontSize: 20, color: "#444444" }}>
+          <Text
+            style={{ fontSize: 16, color: Color.BlackL, fontWeight: "bold" }}
+          >
             {userData ? userData.name : ""}
           </Text>
           <View style={styles.buttonContainer}>
@@ -104,6 +109,7 @@ export default function ProfilePage(props) {
             <View style={{ flex: 1, padding: 4 }}>
               <Button
                 title="LogOut"
+                titleStyle={{ fontSize: 12 }}
                 color={Color.SecondaryColor}
                 onPress={() => {
                   CustomCancelAlert(
@@ -128,10 +134,10 @@ export default function ProfilePage(props) {
             marginRight: 4,
           }}
         >
-          <Text style={{ fontSize: 16, color: "#555555" }}>
+          <Text style={{ fontSize: 16, color: Color.BlackL }}>
             Age : {userData ? userData.age : ""}
           </Text>
-          <Text style={{ fontSize: 16, color: "#555555" }}>
+          <Text style={{ fontSize: 16, color: Color.BlackL }}>
             Profession : {userData ? userData.profession : ""}
           </Text>
         </Card>
@@ -169,6 +175,7 @@ export default function ProfilePage(props) {
         tickets={data}
         loading={dataLoading}
         navigation={props.navigation}
+        onRefresh={fetchTickets}
       ></ShowList>
     </View>
   );
@@ -186,7 +193,7 @@ const styles = StyleSheet.create({
   },
 
   buttonContainer: {
-    marginTop: 24,
+    marginTop: 8,
     flexDirection: "row",
     width: "80%",
     justifyContent: "space-evenly",

@@ -17,6 +17,7 @@ import { getLocationHandler } from "../utilities/LocationHandler";
 import { AxiosPostReq, AxiosGetReq } from "../utilities/AxiosReq";
 import { useSelector, useDispatch } from "react-redux";
 import { setTicketList } from "../store/actions/inMemoryData";
+import { ErrorMsgs } from "../constants/stringValues";
 
 const initialState = {
   name: "",
@@ -67,9 +68,10 @@ export default function DoneeDetailsPage(props) {
   const [disableSubmit, setDisableSubmit] = useState(false);
   const token = useSelector((state) => state.authentication.token);
   const dispatchStore = useDispatch();
-  const username = useSelector(
-    (state) => state.authentication.userData.username
-  );
+  const username = useSelector((state) => {
+    if (state.authentication.userData)
+      return state.authentication.userData.username;
+  });
   const location = useSelector((state) => state.inMemoryData.location);
 
   const fetchTicket = async () => {
@@ -111,6 +113,8 @@ export default function DoneeDetailsPage(props) {
       fetchTicket();
       console.log("in DoneeDetails page " + response.data.message);
       props.navigation.goBack();
+    } else if (response && !response.data.success) {
+      props.navigation.goBack();
     } else {
       dispatch({
         type: "showError",
@@ -120,6 +124,7 @@ export default function DoneeDetailsPage(props) {
             : "",
       });
     }
+
     console.log(response.data);
   };
   const handleSubmit = async () => {
@@ -321,17 +326,17 @@ const validateData = (state) => {
   if (!state.name.match(nameReg))
     return {
       status: false,
-      msg: "Name not valid(Alphabaetical string)",
+      msg: ErrorMsgs.nameAlphabaetical,
     };
   if (!state.numMembers.match(numMembersReg))
     return {
       status: false,
-      msg: "Number of Family Members not valid(1-15)",
+      msg: ErrorMsgs.familyMemberMax,
     };
   if (!state.contact.match(contactReg))
     return {
       status: false,
-      msg: "MobileNo not valid(10 digits)",
+      msg: ErrorMsgs.mobileNoTenDigits,
     };
 
   if (state.problem == "") {
@@ -361,7 +366,7 @@ const validateData = (state) => {
   if (state.description == "" || state.description.length < 20)
     return {
       status: false,
-      msg: "Description can't be empty or less than 20 letters.",
+      msg: ErrorMsgs.descriptionMinimum,
     };
   return {
     status: true,

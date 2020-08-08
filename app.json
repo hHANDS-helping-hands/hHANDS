@@ -7,7 +7,7 @@
     "orientation": "portrait",
     "icon": "./assets/hhands.png",
     "splash": {
-      "image": "./assets/splashhh.png",
+      "image": "./assets/splashScreen.png",
       "resizeMode": "contain",
       "backgroundColor": "#527318"
     },

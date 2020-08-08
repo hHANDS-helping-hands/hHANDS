@@ -1,6 +1,7 @@
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import { Alert } from "react-native";
+import { Alerts } from "../constants/stringValues";
 
 const verifyPermission = async () => {
   const result = await Permissions.askAsync(Permissions.LOCATION);
@@ -28,8 +29,8 @@ const getLocationHandler = async (setIsFetching, timeout = 5000) => {
     return location;
   } catch (error) {
     Alert.alert(
-      "Could not fetch location",
-      "Please press recenter location button, or try again later",
+      Alerts.couldNotFetchLocation.title,
+      Alerts.couldNotFetchLocation.description,
       [{ text: "Okay" }]
     );
     return false;

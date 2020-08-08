@@ -26,6 +26,7 @@ import {
   login,
   setUserData,
 } from "../store/actions/authentication";
+import { Alerts } from "../constants/stringValues";
 
 const initialState = {
   username: "",
@@ -107,10 +108,7 @@ export default function ForgotPassword(props) {
         );
         hideme();
         props.navigation.navigate("HomePage");
-        CustomAlert(
-          "Logged In",
-          "You are logged in, seek help or help people around you"
-        );
+        CustomAlert(Alerts.loggedIn.title, Alerts.loggedIn.description);
       }
     }
   };
@@ -219,7 +217,7 @@ const handleResponse = (response) => {
   if (response) {
     console.log(response.data);
     if (response.data.success) return true;
-    CustomAlert("User Not Found", "Your account does not exist, please signup");
+    CustomAlert(Alerts.userNotFound.title, Alerts.userNotFound.description);
     return false;
   }
   return false;

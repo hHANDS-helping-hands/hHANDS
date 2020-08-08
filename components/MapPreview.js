@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Text, View, Image, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import debugmode from "../constants/debug";
@@ -18,7 +18,7 @@ export default function MapPreview(props) {
   const tappedLocation = props.tappedLocation;
   const setTappedLocation = props.setTappedLocation;
   var marker = null;
-  var flag = null;
+
   const selectPlaceHandler = (event) => {
     if (setTappedLocation)
       setTappedLocation({
@@ -26,6 +26,7 @@ export default function MapPreview(props) {
         longitude: event.nativeEvent.coordinate.longitude,
       });
   };
+
   return (
     <MapView
       key={0}
@@ -35,7 +36,6 @@ export default function MapPreview(props) {
       showsUserLocation={true}
       showsMyLocationButton={false}
       showsCompass={false}
-      onRegionChangeComplete={() => flag && flag.showCallout()}
     >
       {props.coordinates &&
         props.coordinates.map((item, index) => (
@@ -46,10 +46,11 @@ export default function MapPreview(props) {
               latitude: item.location.coordinates[1],
             }}
             ref={(_marker) => {
-              if (!flag) flag = _marker;
+              if (index == 0 && _marker) {
+                _marker.showCallout();
+              }
             }}
             onCalloutPress={() => {
-              //console.log("Callout pressed");
               props.navigation.navigate("ShowDoneeDetails", { ticket: item });
             }}
             title={item.name}
