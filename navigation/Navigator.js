@@ -14,14 +14,17 @@ import ProfilePage from "../pages/ProfilePage";
 import ShowDoneeDetails from "../pages/ShowDoneeDetails";
 import Feedback from "../pages/Feedback";
 import ForgotPassword from "../pages/ForgotPassword";
+import AdminFeedback from "../pages/AdminFeedback";
+import AlternateFeedback from "../pages/AlternateFeedback";
 
 const Navigator = createStackNavigator({
-  // DebugScreen: {
-  //   screen: DebugScreen,
-  //   navigationOptions: {
-  //     headerShown: false,
-  //   },
-  // },
+  DebugScreen: {
+    screen: DebugScreen,
+    navigationOptions: {
+      headerShown: false,
+    },
+  },
+
   SplashScreen: {
     screen: SplashScreen,
     navigationOptions: {
@@ -133,6 +136,36 @@ const Navigator = createStackNavigator({
     navigationOptions: {
       headerTintColor: Color.White,
       title: "ForgotPassword",
+      headerStyle: {
+        backgroundColor: Color.PrimaryColor,
+      },
+      headerTitleStyle: {
+        fontWeight: "normal",
+        fontSize: 18,
+      },
+    },
+  },
+
+  AdminFeedback: {
+    screen: AdminFeedback,
+    navigationOptions: {
+      headerTintColor: Color.White,
+      title: "AdminFeedback",
+      headerStyle: {
+        backgroundColor: Color.PrimaryColor,
+      },
+      headerTitleStyle: {
+        fontWeight: "normal",
+        fontSize: 18,
+      },
+    },
+  },
+
+  AlternateFeedback: {
+    screen: AlternateFeedback,
+    navigationOptions: {
+      headerTintColor: Color.White,
+      title: "AlternateFeedback",
       headerStyle: {
         backgroundColor: Color.PrimaryColor,
       },

@@ -21,16 +21,17 @@ import { useSelector } from "react-redux";
 import { getData, Keys, storeData } from "../utilities/AsyncStorage";
 import { TextValues } from "../constants/stringValues";
 
-export default function Feedback(props) {
+export default function AlternateFeedback(props) {
   var isMounted = true;
+  const params = props.navigation.state.params;
+  var recip = params && params.recip ? params.recip + "" : "7488663497";
+  if (recip == "1") recip = "random";
+  const username = "hhands";
   const loggedIn = useSelector((state) => state.authentication.loggedIn);
-  const [token, username] = useSelector((state) => {
+  const [token] = useSelector((state) => {
     if (state.authentication.userData && state.authentication.userData.username)
-      return [
-        state.authentication.token,
-        state.authentication.userData.username + "",
-      ];
-    else return ["", "random"];
+      return [state.authentication.token];
+    else return [""];
   });
   const [msglist, setmsglist] = useState([]);
   const [loading, setloading] = useState(true);
@@ -49,19 +50,15 @@ export default function Feedback(props) {
 
   async function fetchFeedback() {
     if (loggedIn) {
+      console.log(username + " " + recip);
       const response = await AxiosGetReq(
-        { user: username, recip: "hhands" },
+        { user: username, recip: recip },
         "/feedback",
         token
       );
       console.log("fetched feedback" + JSON.stringify(response.data.message));
       if (response && response.data.success && isMounted) {
         setmsglist(response.data.message.reverse());
-      }
-    } else {
-      const feedbackList = await getData(Keys.feedbackList);
-      if (feedbackList) {
-        setmsglist(feedbackList.reverse());
       }
     }
 
@@ -73,26 +70,17 @@ export default function Feedback(props) {
       setFeedback("");
       setloading(true);
       const response = await AxiosPostReq(
-        { sender: username, msg: feedback, to: "hhands" },
+        { sender: username, msg: feedback, to: recip },
         "/feedback"
       );
       //console.log(response.data);
 
       setloading(false);
-
+      console.log(response.data);
       if (response && response.data.success && isMounted) {
         setmsglist([
-          { to: "hhands", msg: feedback, sender: username + "" },
+          { to: recip, msg: feedback, sender: username + "" },
           ...msglist,
-        ]);
-      }
-
-      if (!loggedIn) {
-        let tempList = msglist.splice(0, 20);
-        tempList.reverse();
-        storeData(Keys.feedbackList, [
-          ...tempList,
-          { to: "hhands", msg: feedback, sender: username + "" },
         ]);
       }
     }
@@ -104,6 +92,7 @@ export default function Feedback(props) {
     return () => {
       isMounted = false;
       console.log("cleaned up, feedback screen");
+      params.fetchFeedback();
     };
   }, []);
   return (
@@ -136,6 +125,18 @@ export default function Feedback(props) {
         >
           {TextValues.feedbackWelcomeNote}
         </Text>
+        {/* <Text
+          style={{
+            color: Color.Placeholder,
+            fontSize: 22,
+            textAlign: "center",
+            lineHeight: 30,
+            padding: 8,
+          }}
+        >
+          Your support will help us extending out our helping hands to the ones
+          in need.
+        </Text> */}
       </View>
       <FlatList
         ListFooterComponent={renderFooter}
@@ -155,14 +156,14 @@ export default function Feedback(props) {
               padding: 8,
               backgroundColor:
                 item.sender == "hhands"
-                  ? Color.SecondaryColor
-                  : Color.PrimaryColor,
+                  ? Color.PrimaryColor
+                  : Color.SecondaryColor,
               direction: "row",
-              alignSelf: item.sender == "hhands" ? "flex-start" : "flex-end",
+              alignSelf: item.sender == "hhands" ? "flex-end" : "flex-start",
               borderRadius: 4,
               marginBottom: 8,
-              marginRight: item.sender == "hhands" ? 40 : 0,
-              marginLeft: item.sender == "hhands" ? 0 : 40,
+              marginRight: item.sender == "hhands" ? 0 : 40,
+              marginLeft: item.sender == "hhands" ? 40 : 0,
             }}
           >
             <Text

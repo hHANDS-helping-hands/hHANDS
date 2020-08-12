@@ -55,6 +55,12 @@ export default function DebugScreen(props) {
         }}
         title="Feedback"
       ></Button>
+      <Button
+        onPress={() => {
+          props.navigation.navigate("AdminFeedback");
+        }}
+        title="AdminFeedback"
+      ></Button>
     </View>
   );
 }
