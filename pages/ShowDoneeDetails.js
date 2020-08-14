@@ -12,12 +12,16 @@ import Color from "../constants/colors";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import debugMode from "../constants/debug";
 import ShowMap from "../components/MapPreview";
-import { AxiosGetReq } from "../utilities/AxiosReq";
+import { AxiosGetReq, AxiosPostReq } from "../utilities/AxiosReq";
 import CustomAlert from "../utilities/CustomAlert";
 import { useSelector } from "react-redux";
+import { CustomCancelAlert } from "../utilities/CustomAlert";
 
 export default function ShowDoneeDetails(props) {
   const token = useSelector((state) => state.authentication.token);
+  const username = useSelector((state) =>
+    state.authentication.userData ? state.authentication.userData.username : ""
+  );
   const params = props.navigation.state.params;
   //console.log(JSON.stringify(params));
   if (params.ticket) {
@@ -57,24 +61,6 @@ export default function ShowDoneeDetails(props) {
     id = id.substring(0, id.length - 4);
     let temp = new Date(parseInt(id)).toLocaleString();
     return temp;
-
-    if (Math.abs(temp.getYear() - new Date().getYear())) {
-      if (Math.abs(temp.getYear() - new Date().getYear()) == 1)
-        return "a year ago";
-      return Math.abs(temp.getYear() - new Date().getYear()) + " years ago";
-    }
-    if (Math.abs(temp.getMonth() - new Date().getMonth())) {
-      if (Math.abs(temp.getMonth() - new Date().getMonth()) == 1)
-        return "a month ago";
-      return Math.abs(temp.getMonth() - new Date().getMonth()) + " months ago";
-    }
-    if (Math.abs(temp.getDate() - new Date().getDate())) {
-      if (Math.abs(temp.getDate() - new Date().getDate()) == 1)
-        return "a day ago";
-      return Math.abs(temp.getDate() - new Date().getDate()) + " days ago";
-    }
-
-    return "today";
   };
 
   let time = getNativeTime();
@@ -94,6 +80,18 @@ export default function ShowDoneeDetails(props) {
     }
     setDisableButton(false);
   };
+
+  const deleteTicket = async (ticket) => {
+    const response = await AxiosPostReq(
+      { ticket: ticket },
+      "/deleteTicket",
+      token
+    );
+    if (response && response.data.success)
+      CustomAlert("Post Deleted", "You have successfully deleted the post");
+    props.navigation.goBack();
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -157,23 +155,51 @@ export default function ShowDoneeDetails(props) {
         ></Button>
         {/* </View> */}
         {token ? (
-          <TouchableOpacity
-            onPress={() => {
-              setReport(!report);
-            }}
-          >
-            <Text
-              style={{
-                textAlign: "right",
-                color: Color.BlackL,
-                textDecorationLine: "underline",
-                color: Color.SecondaryColor,
-                marginBottom: 4,
+          username + "" == ticket.srcContact + "" ? (
+            <TouchableOpacity
+              onPress={() => {
+                CustomCancelAlert(
+                  "Delete",
+                  "To delete this post, press ok",
+                  deleteTicket,
+                  ticket
+                );
+                //LogOutHandler(dispatch, props);
               }}
             >
-              Report
-            </Text>
-          </TouchableOpacity>
+              <Text
+                style={{
+                  textAlign: "right",
+                  color: Color.BlackL,
+                  textDecorationLine: "underline",
+                  color: Color.SecondaryColor,
+                  marginBottom: 4,
+                  marginTop: 4,
+                }}
+              >
+                Delete
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => {
+                setReport(!report);
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "right",
+                  color: Color.BlackL,
+                  textDecorationLine: "underline",
+                  color: Color.SecondaryColor,
+                  marginBottom: 4,
+                  marginTop: 4,
+                }}
+              >
+                Report
+              </Text>
+            </TouchableOpacity>
+          )
         ) : (
           <Text
             style={{

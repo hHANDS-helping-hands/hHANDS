@@ -30,7 +30,7 @@ export function CustomCancelAlert(title, message, action, ...args) {
         onPress: () => {
           var arg1, arg2;
           [arg1, arg2] = args;
-          action(arg1, arg2);
+          action(...args);
         },
       },
     ],
