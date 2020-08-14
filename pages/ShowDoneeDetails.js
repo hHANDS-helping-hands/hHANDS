@@ -159,8 +159,8 @@ export default function ShowDoneeDetails(props) {
             <TouchableOpacity
               onPress={() => {
                 CustomCancelAlert(
-                  "Log out",
-                  "You will be logged out, press ok",
+                  "Delete",
+                  "To delete this post, press ok",
                   deleteTicket,
                   ticket
                 );
