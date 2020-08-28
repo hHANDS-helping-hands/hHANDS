@@ -289,7 +289,7 @@ export default function DoneeDetailsPage(props) {
         <TextInput
           multiline
           numberOfLines={5}
-          maxLength={200}
+          maxLength={800}
           style={{
             ...styles.textInput,
             textAlignVertical: "top",
