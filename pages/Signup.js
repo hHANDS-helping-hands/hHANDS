@@ -1,10 +1,9 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useReducer, useEffect } from "react";
 import {
   Text,
   View,
   StyleSheet,
   Button,
-  AsyncStorage,
   Picker,
   StatusBar,
   Keyboard,
@@ -19,7 +18,7 @@ import Values, { ErrorMsgs } from "../constants/stringValues";
 import { AxiosGetReq } from "../utilities/AxiosReq";
 import CustomAlert from "../utilities/CustomAlert";
 import { useDispatch, useSelector } from "react-redux";
-import { Placeholders, PickerLabels } from "../constants/stringValues";
+import { Placeholders } from "../constants/stringValues";
 import {
   setToken,
   setCredential,
@@ -35,12 +34,14 @@ const initialState = {
   password: "",
   confirmPassword: "",
   accuracy: 0,
-  selectedValue: "Profession",
-  otherValue: "",
-  gender: "Male",
+  profession: "Profession",
+  otherProfession: "",
+  gender: "Gender",
+  otherGender: "",
   showError: "",
   otpModalVisible: false,
   isVisible: true,
+  disableSignupButton: false,
 };
 
 const reducer = (state, action) => {
@@ -60,16 +61,20 @@ const reducer = (state, action) => {
       return { ...state, profession: action.value };
     case Values.name:
       return { ...state, name: action.value };
-    case "selectedValue":
-      return { ...state, selectedValue: action.value };
+    case "profession":
+      return { ...state, profession: action.value };
     case "showError":
       return { ...state, showError: action.value };
     case "otpModalVisible":
       return { ...state, otpModalVisible: action.value };
     case "isVisible":
       return { ...state, isVisible: action.value };
-    case "otherValue":
-      return { ...state, otherValue: action.value };
+    case "otherProfession":
+      return { ...state, otherProfession: action.value };
+    case "otherGender":
+      return { ...state, otherGender: action.value };
+    case "disableSignupButton":
+      return { ...state, disableSignupButton: action.value };
     default:
       return;
   }
@@ -102,21 +107,23 @@ export default function SignUp(props) {
   const token = useSelector((state) => state.authentication.token);
 
   const signUp = async (token) => {
+    dispatch({ type: "disableSignupButton", value: true });
     const response = await AxiosGetReq(
       {
         user: state.username,
         pass: state.password,
-        gend: state.gender,
+        gend: state.gender == "Other" ? state.otherGender : state.gender,
         name: state.name,
         prof:
-          state.selectedValue == "Other"
-            ? state.otherValue
-            : state.selectedValue,
+          state.profession == "Other"
+            ? state.otherProfession
+            : state.profession,
         age: state.age,
       },
       "/signup",
       token
     );
+
     if (response) {
       console.log(response.data);
       if (response.data.success) {
@@ -134,6 +141,7 @@ export default function SignUp(props) {
         CustomAlert(Alerts.loggedIn.title, Alerts.loggedIn.description);
       }
     }
+    dispatch({ type: "disableSignupButton", value: false });
   };
 
   const _keyboardDidShow = () => {
@@ -154,7 +162,10 @@ export default function SignUp(props) {
         backgroundColor={Color.PrimaryColor}
         barStyle="light-content"
       />
-      <ScrollView style={{ flex: 1, backgroundColor: Color.White }}>
+      <ScrollView
+        keyboardShouldPersistTaps="always"
+        style={{ flex: 1, backgroundColor: Color.White }}
+      >
         <View style={{ ...styles.container }}>
           <HelpingHands textColor={Color.PrimaryColor} />
 
@@ -193,11 +204,26 @@ export default function SignUp(props) {
                 dispatch({ type: "gender", value: itemValue })
               }
             >
+              <Picker.Item
+                label="Gender"
+                value="Gender"
+                color={Colors.Placeholder}
+              />
               <Picker.Item label="Male" value="Male" />
               <Picker.Item label="Female" value="Female" />
-              <Picker.Item label="Transgender" value="Transgender" />
+              <Picker.Item label="Other" value="Other" />
             </Picker>
           </View>
+          {state.gender == "Other" && (
+            <TextInput
+              editable
+              style={{ ...styles.input }}
+              placeholder="Enter gender"
+              onChangeText={(text) => {
+                dispatch({ type: "otherGender", value: text });
+              }}
+            ></TextInput>
+          )}
 
           <View
             style={{
@@ -206,14 +232,14 @@ export default function SignUp(props) {
           >
             <Picker
               mode="dropdown"
-              selectedValue={state.selectedValue}
+              selectedValue={state.profession}
               style={{
                 ...styles.input,
                 marginLeft: -8,
                 width: "100%",
               }}
               onValueChange={(itemValue, itemIndex) =>
-                dispatch({ type: "selectedValue", value: itemValue })
+                dispatch({ type: "profession", value: itemValue })
               }
             >
               <Picker.Item
@@ -226,13 +252,13 @@ export default function SignUp(props) {
               <Picker.Item label="Other" value="Other" />
             </Picker>
           </View>
-          {state.selectedValue == "Other" && (
+          {state.profession == "Other" && (
             <TextInput
               editable
               style={{ ...styles.input }}
-              placeholder="Enter Profession"
+              placeholder="Enter profession"
               onChangeText={(text) => {
-                dispatch({ type: "otherValue", value: text });
+                dispatch({ type: "otherProfession", value: text });
               }}
             ></TextInput>
           )}
@@ -309,9 +335,27 @@ const validateData = (state) => {
       status: false,
       msg: ErrorMsgs.nameAlphabaetical,
     };
+
+  if (!state.gender.match(professionReg) || state.gender == "Gender") {
+    //console.error("Printing" + state.profession);
+    //console.log("printing" + state.profession);
+    return {
+      status: false,
+      msg: ErrorMsgs.genderAlphabaetical,
+    };
+  }
+
+  if (state.gender == "Other" && !state.otherGender.match(professionReg)) {
+    //console.error("Printing" + state.gender);
+    console.log("printing" + state.gender);
+    return {
+      status: false,
+      msg: ErrorMsgs.genderAlphabaetical,
+    };
+  }
   if (
-    !state.selectedValue.match(professionReg) ||
-    state.selectedValue == "Profession"
+    !state.profession.match(professionReg) ||
+    state.profession == "Profession"
   ) {
     //console.error("Printing" + state.profession);
     console.log("printing" + state.profession);
@@ -321,8 +365,8 @@ const validateData = (state) => {
     };
   }
   if (
-    state.selectedValue == "Other" &&
-    !state.otherValue.match(professionReg)
+    state.profession == "Other" &&
+    !state.otherProfession.match(professionReg)
   ) {
     //console.error("Printing" + state.profession);
     console.log("printing" + state.profession);
@@ -331,6 +375,7 @@ const validateData = (state) => {
       msg: ErrorMsgs.professionAlphabaetical,
     };
   }
+
   if (!state.age.match(ageReg))
     return {
       status: false,
@@ -383,7 +428,7 @@ const styles = StyleSheet.create({
     margin: 6,
     borderBottomColor: Color.PrimaryColor,
     borderBottomWidth: 1,
-    fontSize: 14,
+    fontSize: 16,
     //backgroundColor: Colors.PrimaryColor,
   },
   buttonContainer: {

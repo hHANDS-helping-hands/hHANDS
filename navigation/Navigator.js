@@ -4,8 +4,6 @@ import { createAppContainer } from "react-navigation";
 import DoneeDetailsPage from "../pages/DoneeDetailsPage";
 import HomePage from "../pages/HomePage";
 import SplashScreen from "../pages/SplashScreen";
-import ShowVideo from "../pages/ShowVideo";
-import TestMe from "../pages/TestMe";
 import Signup from "../pages/Signup";
 import Color from "../constants/colors";
 import DebugScreen from "../pages/DebugScreen";
@@ -63,10 +61,6 @@ const Navigator = createStackNavigator({
         fontSize: 18,
       },
     },
-  },
-
-  TestMe: {
-    screen: TestMe,
   },
 
   LocationScreen: {

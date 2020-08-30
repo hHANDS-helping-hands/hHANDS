@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useReducer, useEffect } from "react";
 import { Text, View, StyleSheet, Button, Keyboard } from "react-native";
 import Modal from "react-native-modal";
 import HelpingHands from "../components/HelpingHands";
@@ -9,19 +9,13 @@ import Color from "../constants/colors";
 import axios from "axios";
 import Values from "../constants/stringValues";
 import { AxiosGetReq } from "../utilities/AxiosReq";
-import {
-  setToken,
-  setCredential,
-  login,
-} from "../store/actions/authentication";
+import { setToken } from "../store/actions/authentication";
 import { useDispatch } from "react-redux";
-import CustomAlert from "../utilities/CustomAlert";
-//import debugMode from "../constants/debug";
-//import AsyncStorage from "@react-native-community/async-storage";
 
 const initialState = {
   otp: "",
   showError: "",
+  disableOtpButton: false,
 };
 
 const reducer = (state, action) => {
@@ -31,6 +25,8 @@ const reducer = (state, action) => {
       return { ...state, otp: action.value };
     case "showError":
       return { ...state, showError: action.value };
+    case "disableOtpButton":
+      return { ...state, disableOtpButton: action.value };
     default:
       console.log(action);
       return;
@@ -43,7 +39,7 @@ export default function OtpModal(props) {
   const username = props.username;
 
   const hideHandler = () => {
-    dispatch({ type: "showError", data: "" });
+    dispatch({ type: "showError", value: "" });
     dispatch({ type: Values.otp, value: "" });
     props.hide();
   };
@@ -52,7 +48,7 @@ export default function OtpModal(props) {
   const dispatchStore = useDispatch();
 
   const _keyboardDidShow = () => {
-    dispatch({ type: "showError", data: "" });
+    dispatch({ type: "showError", value: "" });
   };
   useEffect(() => {
     Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
@@ -88,6 +84,7 @@ export default function OtpModal(props) {
           <Button
             title="Enter Otp"
             color={Color.PrimaryColor}
+            disabled={state.disableOtpButton}
             onPress={() =>
               otpHandler(state.otp, props, dispatchStore, dispatch)
             }
@@ -99,6 +96,7 @@ export default function OtpModal(props) {
 }
 //`var headers;
 const otpHandler = async (otp, props, dispatchStore, dispatch) => {
+  dispatch({ type: "disableOtpButton", value: true });
   const { username } = props;
   if (otp.length != 4) {
     dispatch({ type: "showError", value: "Otp must be of 4 digits" });
@@ -106,6 +104,7 @@ const otpHandler = async (otp, props, dispatchStore, dispatch) => {
   }
   const response = await AxiosGetReq({ user: username, otp: otp }, "/checkotp");
   if (response) {
+    dispatch({ type: "disableOtpButton", value: false });
     if (response.data.success) {
       dispatch({ type: "showError", value: "" });
       dispatchStore(setToken(response.data.token));
@@ -119,7 +118,6 @@ const otpHandler = async (otp, props, dispatchStore, dispatch) => {
           ? "Wrong otp"
           : response.data.message,
     });
-    return;
   }
 };
 
