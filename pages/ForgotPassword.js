@@ -148,7 +148,7 @@ export default function ForgotPassword(props) {
           <TextInput
             editable
             style={{ ...styles.input }}
-            placeholder="Password"
+            placeholder="New Password"
             secureTextEntry={true}
             onChangeText={(text) => {
               dispatch({ type: Values.password, value: text });

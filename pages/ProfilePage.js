@@ -13,7 +13,7 @@ import Color from "../constants/colors";
 import Screens from "../constants/screens";
 import debugMode from "../constants/debug";
 import Card from "../components/Card";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import ShowList from "../components/ShowList";
 import boy1 from "../assets/avatars/boy1.png";
@@ -82,6 +82,15 @@ export default function ProfilePage(props) {
             marginRight: 4,
           }}
         >
+          <View style={{ alignSelf: "flex-end" }}>
+            <TouchableOpacity
+              onPress={() => {
+                props.navigation.navigate("EditableUserData");
+              }}
+            >
+              <FontAwesome name="edit" size={24} color={Color.BlackL} />
+            </TouchableOpacity>
+          </View>
           {/* <TouchableOpacity> */}
           <Image
             source={

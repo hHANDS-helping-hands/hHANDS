@@ -20,7 +20,7 @@ const Placeholders = {
   pinCode: "Pin Code",
   name: "Name",
   profession: "Enter Profession",
-  age: "Age(eg:25,39)",
+  age: "Age(eg: 25,39)",
   password: "Password",
   confirmPassword: "Confirm Password",
   location: "Enter Location",

@@ -265,6 +265,7 @@ export default function SignUp(props) {
           <TextInput
             editable
             style={{ ...styles.input }}
+            keyboardType="number-pad"
             placeholder={Placeholders.age}
             onChangeText={(text) => {
               dispatch({ type: Values.age, value: text });

@@ -12,6 +12,7 @@ import ProfilePage from "../pages/ProfilePage";
 import ShowDoneeDetails from "../pages/ShowDoneeDetails";
 import Feedback from "../pages/Feedback";
 import ForgotPassword from "../pages/ForgotPassword";
+import EditableUserData from "../pages/EditableUserData";
 
 const Navigator = createStackNavigator({
   // DebugScreen: {
@@ -67,7 +68,7 @@ const Navigator = createStackNavigator({
     screen: LocationScreen,
     navigationOptions: {
       headerTintColor: Color.White,
-      title: "Donee Details",
+      title: "Add Donee",
       headerStyle: {
         backgroundColor: Color.PrimaryColor,
       },
@@ -82,7 +83,7 @@ const Navigator = createStackNavigator({
     screen: ShowDoneeDetails,
     navigationOptions: {
       headerTintColor: Color.White,
-      title: "ShowDoneeDetails",
+      title: "Donee Details",
       headerStyle: {
         backgroundColor: Color.PrimaryColor,
       },
@@ -97,7 +98,7 @@ const Navigator = createStackNavigator({
     screen: ProfilePage,
     navigationOptions: {
       headerTintColor: Color.White,
-      title: "ProfilePage",
+      title: "Profile",
       headerStyle: {
         backgroundColor: Color.PrimaryColor,
       },
@@ -126,7 +127,21 @@ const Navigator = createStackNavigator({
     screen: ForgotPassword,
     navigationOptions: {
       headerTintColor: Color.White,
-      title: "ForgotPassword",
+      title: "Forgot Password",
+      headerStyle: {
+        backgroundColor: Color.PrimaryColor,
+      },
+      headerTitleStyle: {
+        fontWeight: "normal",
+        fontSize: 18,
+      },
+    },
+  },
+  EditableUserData: {
+    screen: EditableUserData,
+    navigationOptions: {
+      headerTintColor: Color.White,
+      title: "Edit Profile",
       headerStyle: {
         backgroundColor: Color.PrimaryColor,
       },
