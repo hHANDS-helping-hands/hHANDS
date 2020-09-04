@@ -1,19 +1,19 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { Text, View, Image, StyleSheet } from "react-native";
+import React from "react";
+import { StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import debugmode from "../constants/debug";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+
 import Color from "../constants/colors";
-import ShowDoneeDetails from "../pages/ShowDoneeDetails";
-import { hasStartedLocationUpdatesAsync } from "expo-location";
-import Config from "../utilities/Config";
 export default function MapPreview(props) {
   const mapRegion = {
     latitude: props.userLocation.latitude,
     longitude: props.userLocation.longitude,
-    latitudeDelta: 0.00222,
-    longitudeDelta: 0.00922,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+    // latitude: 22.0084312,
+    // longitude: 82.4118888,
+    // latitudeDelta: 26.922,
+    // longitudeDelta: 26.922,
   };
   const tappedLocation = props.tappedLocation;
   const setTappedLocation = props.setTappedLocation;

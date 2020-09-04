@@ -1,11 +1,9 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useReducer, useEffect } from "react";
 import {
   Text,
   View,
   StyleSheet,
   Button,
-  AsyncStorage,
-  Picker,
   StatusBar,
   Keyboard,
 } from "react-native";
@@ -14,7 +12,6 @@ import Colors from "../constants/colors";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import debugMode from "../constants/debug";
 import Color from "../constants/colors";
-import axios from "axios";
 import OtpModal from "../components/OtpModal";
 import Values from "../constants/stringValues";
 import { AxiosGetReq } from "../utilities/AxiosReq";
@@ -131,7 +128,10 @@ export default function ForgotPassword(props) {
         backgroundColor={Color.PrimaryColor}
         barStyle="light-content"
       />
-      <ScrollView style={{ flex: 1, backgroundColor: Color.White }}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: Color.White }}
+        keyboardShouldPersistTaps="always"
+      >
         <View style={{ ...styles.container }}>
           <HelpingHands textColor={Color.PrimaryColor} />
           <TextInput
@@ -148,7 +148,7 @@ export default function ForgotPassword(props) {
           <TextInput
             editable
             style={{ ...styles.input }}
-            placeholder="Password"
+            placeholder="New Password"
             secureTextEntry={true}
             onChangeText={(text) => {
               dispatch({ type: Values.password, value: text });

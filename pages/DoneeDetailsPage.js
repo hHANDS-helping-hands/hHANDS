@@ -12,8 +12,6 @@ import {
 import Color from "../constants/colors";
 import { ScrollView } from "react-native-gesture-handler";
 import debugMode from "../constants/debug";
-import Colors from "../constants/colors";
-import { getLocationHandler } from "../utilities/LocationHandler";
 import { AxiosPostReq, AxiosGetReq } from "../utilities/AxiosReq";
 import { useSelector, useDispatch } from "react-redux";
 import { setTicketList } from "../store/actions/inMemoryData";
@@ -31,6 +29,7 @@ const initialState = {
   showError: "",
   numMembers: "",
   addressTitle: "Enter Address",
+  disableAddressButton: false,
 };
 
 const reducer = (state, action) => {
@@ -58,6 +57,8 @@ const reducer = (state, action) => {
       return { ...state, showError: action.value };
     case "addressTitle":
       return { ...state, addressTitle: action.value };
+    case "disableAddressButton":
+      return { ...state, disableAddressButton: action.value };
     default:
       return;
   }
@@ -96,7 +97,7 @@ export default function DoneeDetailsPage(props) {
       {
         long: state.location.longitude,
         lat: state.location.latitude,
-        src: username,
+        src: username + "",
         name: state.name,
         gend: state.gender,
         cont: state.contact,
@@ -145,11 +146,13 @@ export default function DoneeDetailsPage(props) {
   };
 
   const locationHandler = () => {
+    dispatch({ type: "disableAddressButton", value: true });
     props.navigation.navigate("LocationScreen", {
       dispatchParent: dispatch,
       locationParent: state.location,
       addressParent: state.address,
     });
+    dispatch({ type: "disableAddressButton", value: false });
   };
 
   const _keyboardDidShow = () => {
@@ -173,7 +176,10 @@ export default function DoneeDetailsPage(props) {
         backgroundColor={Color.PrimaryColor}
         barStyle="light-content"
       />
-      <ScrollView contentContainerStyle={{ padding: 24 }}>
+      <ScrollView
+        contentContainerStyle={{ padding: 24 }}
+        keyboardShouldPersistTaps="always"
+      >
         <Text style={{ color: Color.BlackLLL }}>
           ** This data will be shared with our users **
         </Text>
@@ -211,6 +217,7 @@ export default function DoneeDetailsPage(props) {
 
         <Text style={styles.text}>Number of Family Members</Text>
         <TextInput
+          keyboardType="number-pad"
           style={styles.textInput}
           onChangeText={(text) => {
             dispatch({ type: "numMembers", value: text });
@@ -222,6 +229,7 @@ export default function DoneeDetailsPage(props) {
           {/* <Text style={{ ...styles.verify, ...debugMode.debug }}>Verify</Text> */}
         </View>
         <TextInput
+          keyboardType="number-pad"
           style={styles.textInput}
           onChangeText={(text) => {
             dispatch({ type: "contact", value: text });
@@ -283,18 +291,26 @@ export default function DoneeDetailsPage(props) {
             title={state.addressTitle}
             color={Color.PrimaryColor}
             onPress={locationHandler}
+            disabled={state.disableAddressButton}
           ></Button>
         </View>
-        <Text style={styles.text}>Description</Text>
+        <View style={{ ...debugMode.debug, ...styles.horizontal }}>
+          <Text style={styles.text}>Description</Text>
+          <Text style={{ ...styles.verify, ...debugMode.debug }}>
+            {state.description.length}/{800}
+          </Text>
+        </View>
+
         <TextInput
           multiline
           numberOfLines={5}
-          maxLength={200}
+          maxLength={800}
           style={{
             ...styles.textInput,
             textAlignVertical: "top",
             paddingTop: 4,
           }}
+          value={state.description}
           onChangeText={(text) => {
             dispatch({ type: "description", value: text });
           }}
@@ -389,6 +405,8 @@ const styles = StyleSheet.create({
     textAlignVertical: "center",
     marginBottom: 12,
     paddingLeft: 4,
+    fontSize: 14,
+    lineHeight: 20,
   },
   text: {
     color: Color.SecondaryColor,
@@ -400,8 +418,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   verify: {
-    color: Color.White,
-    backgroundColor: Color.SecondaryColor,
+    color: Color.BlackLLL,
     borderRadius: 5,
     paddingLeft: 2,
     paddingRight: 2,

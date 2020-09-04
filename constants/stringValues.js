@@ -20,7 +20,7 @@ const Placeholders = {
   pinCode: "Pin Code",
   name: "Name",
   profession: "Enter Profession",
-  age: "Age(eg:25,39)",
+  age: "Age(eg: 25,39)",
   password: "Password",
   confirmPassword: "Confirm Password",
   location: "Enter Location",
@@ -55,7 +55,7 @@ const ErrorMsgs = {
   addressNotValid: "Address not valid",
   pinCodeNotValid: "Pincode must be of 6 digits",
   professionAlphabaetical: "Profession entry should be Alphabetical",
-
+  genderAlphabaetical: "Gender entry should be Alphabetical",
   ageNotValid: "Age should be more than 10 or less than 199",
   otpNotValid: "Otp must be of 4 digits",
 };

@@ -4,19 +4,13 @@ import {
   Text,
   FlatList,
   ActivityIndicator,
-  Button,
   StyleSheet,
   Image,
 } from "react-native";
-import dataGenerator from "../utilities/DataGenerator";
 import Color from "../constants/colors";
 import debugMode from "../constants/debug";
 import Card from "../components/Card";
-import {
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from "react-native-gesture-handler";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function ShowList(props) {
   //console.log(props);

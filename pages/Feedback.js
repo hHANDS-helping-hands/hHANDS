@@ -3,19 +3,14 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   StatusBar,
   TextInput,
   ActivityIndicator,
 } from "react-native";
 import Color from "../constants/colors";
-import {
-  ScrollView,
-  FlatList,
-  TouchableOpacity,
-} from "react-native-gesture-handler";
+import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import debugMode from "../constants/debug";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { AxiosGetReq, AxiosPostReq } from "../utilities/AxiosReq";
 import { useSelector } from "react-redux";
 import { getData, Keys, storeData } from "../utilities/AsyncStorage";

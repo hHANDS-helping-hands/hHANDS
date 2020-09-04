@@ -13,9 +13,8 @@ import Colors from "../constants/colors";
 import { TextInput, ScrollView } from "react-native-gesture-handler";
 import debugMode from "../constants/debug";
 import Color from "../constants/colors";
-import OtpModal from "../components/OtpModal";
 import Values, { ErrorMsgs } from "../constants/stringValues";
-import { AxiosGetReq } from "../utilities/AxiosReq";
+import { AxiosPostReq } from "../utilities/AxiosReq";
 import CustomAlert from "../utilities/CustomAlert";
 import { useDispatch, useSelector } from "react-redux";
 import { Placeholders } from "../constants/stringValues";
@@ -80,38 +79,26 @@ const reducer = (state, action) => {
   }
 };
 
-export default function SignUp(props) {
+export default function EditableUserData(props) {
   const params = props.navigation.state.params;
   const hideme = () => {
     dispatch({ type: "otpModalVisible", value: false });
   };
   const dispatchStore = useDispatch();
-  const showme = async () => {
-    let result = validateData(state);
-    if (result.status) {
-      dispatch({
-        type: "showError",
-        value: "",
-      });
-      let response = await AxiosGetReq({ user: state.username }, "/getotp");
-      if (handleResponse(response))
-        dispatch({ type: "otpModalVisible", value: true });
-    } else
-      dispatch({
-        type: "showError",
-        value: result.msg,
-      });
-  };
-
   const [state, dispatch] = useReducer(reducer, initialState);
   const token = useSelector((state) => state.authentication.token);
+  const userData = useSelector((state) => {
+    return state.authentication.userData;
+  });
 
-  const signUp = async (token) => {
+  const signUp = async () => {
+    if (!validateData(state).status) {
+      dispatch({ type: "showError", value: validateData(state).msg });
+      return;
+    }
     dispatch({ type: "disableSignupButton", value: true });
-    const response = await AxiosGetReq(
+    const response = await AxiosPostReq(
       {
-        user: state.username,
-        pass: state.password,
         gend: state.gender == "Other" ? state.otherGender : state.gender,
         name: state.name,
         prof:
@@ -120,25 +107,34 @@ export default function SignUp(props) {
             : state.profession,
         age: state.age,
       },
-      "/signup",
+      "/updateUserData",
       token
     );
 
     if (response) {
       console.log(response.data);
       if (response.data.success) {
-        dispatchStore(login());
-        dispatchStore(setToken(response.data.token));
-        dispatchStore(setCredential(state.username, state.password));
         console.log(response.data.userData);
-        dispatchStore(setUserData(response.data.userData));
-        //hideme();
-        props.navigation.pop();
-        props.navigation.navigate(
-          //params && params.destination ? params.destination : "HomePage"
-          "HomePage"
+        dispatchStore(
+          setUserData({
+            ...userData,
+            age: state.age,
+            gender: state.gender == "Other" ? state.otherGender : state.gender,
+            name: state.name,
+            profession:
+              state.profession == "Other"
+                ? state.otherProfession
+                : state.profession,
+          })
         );
-        CustomAlert(Alerts.loggedIn.title, Alerts.loggedIn.description);
+        props.navigation.goBack();
+        //hideme();
+        // props.navigation.pop();
+        // props.navigation.navigate(
+        //   //params && params.destination ? params.destination : "HomePage"
+        //   "HomePage"
+        // );
+        // CustomAlert(Alerts.loggedIn.title, Alerts.loggedIn.description);
       }
     }
     dispatch({ type: "disableSignupButton", value: false });
@@ -150,11 +146,26 @@ export default function SignUp(props) {
 
   useEffect(() => {
     Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+    console.log("use effect ran");
+    console.log(userData);
+    dispatch({ type: "name", value: userData.name });
+    dispatch({ type: "age", value: userData.age + "" });
+    if (userData.gender != "Male" && userData.gender != "Female") {
+      dispatch({ type: "gender", value: "Other" });
+      dispatch({ type: "otherGender", value: userData.gender });
+    } else dispatch({ type: "gender", value: userData.gender });
+
+    if (userData.profession == "Student" || userData.profession == "Engineer")
+      dispatch({ type: "profession", value: userData.profession });
+    else {
+      dispatch({ type: "profession", value: "Other" });
+      dispatch({ type: "otherProfession", value: userData.profession });
+    }
     return () => {
-      console.log("cleaned up, Signup screen");
+      console.log("cleaned up, Edit Profile screen");
       Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
     };
-  }, []);
+  }, [userData]);
 
   return (
     <View style={styles.statusContainer}>
@@ -170,22 +181,13 @@ export default function SignUp(props) {
           <HelpingHands textColor={Color.PrimaryColor} />
 
           <TextInput
-            autoCompleteType="off"
-            editable
-            style={{ ...styles.input, marginTop: 30 }}
-            keyboardType="number-pad"
-            placeholder="Mobile No"
-            onChangeText={(text) => {
-              dispatch({ type: Values.username, value: text });
-            }}
-          ></TextInput>
-          <TextInput
             editable
             style={{ ...styles.input }}
             placeholder="Name"
             onChangeText={(text) => {
               dispatch({ type: Values.name, value: text });
             }}
+            value={state.name}
           ></TextInput>
           <View
             style={{
@@ -219,6 +221,7 @@ export default function SignUp(props) {
               editable
               style={{ ...styles.input }}
               placeholder="Enter gender"
+              value={state.otherGender}
               onChangeText={(text) => {
                 dispatch({ type: "otherGender", value: text });
               }}
@@ -257,6 +260,7 @@ export default function SignUp(props) {
               editable
               style={{ ...styles.input }}
               placeholder="Enter profession"
+              value={state.otherProfession}
               onChangeText={(text) => {
                 dispatch({ type: "otherProfession", value: text });
               }}
@@ -265,30 +269,14 @@ export default function SignUp(props) {
           <TextInput
             editable
             style={{ ...styles.input }}
-            keyboardType="number-pad"
             placeholder={Placeholders.age}
+            keyboardType="number-pad"
+            value={state.age}
             onChangeText={(text) => {
               dispatch({ type: Values.age, value: text });
             }}
           ></TextInput>
-          <TextInput
-            editable
-            style={{ ...styles.input }}
-            placeholder="Password"
-            secureTextEntry={true}
-            onChangeText={(text) => {
-              dispatch({ type: Values.password, value: text });
-            }}
-          ></TextInput>
-          <TextInput
-            editable
-            style={{ ...styles.input }}
-            placeholder="Confirm Password"
-            secureTextEntry={true}
-            onChangeText={(text) => {
-              dispatch({ type: Values.confirmPassword, value: text });
-            }}
-          ></TextInput>
+
           {state.showError != "" && (
             <Text style={{ color: Color.SecondaryColor }}>
               {state.showError}
@@ -297,24 +285,16 @@ export default function SignUp(props) {
 
           <View style={{ ...styles.buttonContainer }}>
             <Button
-              title="Verify Otp"
+              title="Save & Close"
+              disabled={state.disableSignupButton}
               color={Color.SecondaryColor}
-              onPress={showme}
+              onPress={signUp}
             ></Button>
           </View>
           <Text style={{ color: Color.BlackLLL }}>
             ** This data will not be shared with any donor or donee **
           </Text>
         </View>
-        <OtpModal
-          hide={hideme}
-          isVisible={state.otpModalVisible}
-          username={state.username}
-          password={state.password}
-          destination={params.destination}
-          navigation={props.navigation}
-          action={signUp}
-        ></OtpModal>
       </ScrollView>
     </View>
   );
@@ -322,15 +302,9 @@ export default function SignUp(props) {
 
 //`var headers;
 const validateData = (state) => {
-  let usernameReg = /^\d{10}$/;
   let ageReg = /^[1-9]\d$|^1\d\d$/;
   let professionReg = /^[a-zA-Z][a-zA-Z ]*$/;
   let nameReg = /^[a-zA-Z][a-zA-Z ]*$/;
-  if (!state.username.match(usernameReg))
-    return {
-      status: false,
-      msg: ErrorMsgs.mobileNoTenDigits,
-    };
   if (!state.name.match(nameReg))
     return {
       status: false,
@@ -382,31 +356,9 @@ const validateData = (state) => {
       status: false,
       msg: ErrorMsgs.ageNotValid,
     };
-
-  if (state.password == "" || state.confirmPassword == "")
-    return {
-      status: false,
-      msg: ErrorMsgs.passwordEmpty,
-    };
-
-  if (state.password != state.confirmPassword)
-    return {
-      status: false,
-      msg: ErrorMsgs.confirmPasswordNotMatch,
-    };
   return {
     status: true,
   };
-};
-
-const handleResponse = (response) => {
-  if (response) {
-    //console.log(response.data.success);
-    if (response.data.success) return true;
-    CustomAlert(Alerts.userExists.title, Alerts.userExists.description);
-    return false;
-  }
-  return false;
 };
 
 const styles = StyleSheet.create({

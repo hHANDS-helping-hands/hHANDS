@@ -104,6 +104,7 @@ export default function LocationScreen(props) {
         barStyle="light-content"
       />
       <ScrollView
+        keyboardShouldPersistTaps="always"
         style={{ flex: 1, ...debugMode.debug, backgroundColor: Color.White }}
       >
         <View
@@ -197,6 +198,7 @@ export default function LocationScreen(props) {
               value={address.pin}
               style={{ ...styles.input }}
               placeholder="Pin Code"
+              keyboardType="number-pad"
               onChangeText={(text) => {
                 setAddress({ ...address, pin: text });
               }}

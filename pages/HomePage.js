@@ -10,7 +10,7 @@ import {
   Switch,
 } from "react-native";
 import Color from "../constants/colors";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import ShowMap from "../components/MapPreview";
 import ShowList from "../components/ShowList";
 import debugMode from "../constants/debug";
@@ -28,6 +28,7 @@ export default function HomePage(props) {
   const dispatchStore = useDispatch();
   const [destination, setDestination] = useState("");
   const [dataLoading, setDataLoading] = useState(false);
+  const [disableAddDonee, setDisableAddDonee] = useState(false);
 
   const [isVisible, setIsVisible] = useState(false);
   const [mapView, setMapView] = useState({
@@ -94,28 +95,15 @@ export default function HomePage(props) {
   }, []);
 
   const handleAddDonee = () => {
+    setDisableAddDonee(true);
     if (loggedIn) props.navigation.navigate(Screens.DoneeDetailsPage);
     else {
       setDestination(Screens.DoneeDetailsPage);
       setIsVisible(true);
     }
-
+    setDisableAddDonee(false);
     //console.log("add donee pressed");
   };
-
-  // const handleViewInList = () => {
-  //   if (mapView.state)
-  //     setMapView({
-  //       state: false,
-  //       buttonText: "View in Map",
-  //     });
-  //   else
-  //     setMapView({
-  //       state: true,
-  //       buttonText: "View in List",
-  //     });
-  //   //console.log("view in list pressed");
-  // };
 
   const handleFeedback = () => {
     props.navigation.navigate(Screens.Feedback);
@@ -249,6 +237,7 @@ export default function HomePage(props) {
           style={{ ...styles.addButton }}
           color={Color.PrimaryColor}
           onPress={handleAddDonee}
+          disabled={disableAddDonee}
         />
       </View>
     </View>

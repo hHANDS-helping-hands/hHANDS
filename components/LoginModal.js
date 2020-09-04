@@ -29,6 +29,7 @@ const initialState = {
   mobileNo: "",
   password: "",
   disableLoginButton: false,
+  disableSignupButton: false,
   showError: "",
 };
 
@@ -42,6 +43,8 @@ const reducer = (state, action) => {
       return { ...state, password: action.password };
     case "disableLoginButton":
       return { ...state, disableLoginButton: action.data };
+    case "disableSignupButton":
+      return { ...state, disableSignupButton: action.data };
     case "showError":
       return { ...state, showError: action.data };
     default:
@@ -124,8 +127,11 @@ export default function LoginModal(props) {
           <Button
             title="Signup"
             color={Color.SecondaryColor}
+            disabled={state.disableSignupButton}
             onPress={() => {
+              dispatch({ type: "disableSignupButton", data: true });
               hideMe();
+              dispatch({ type: "disableSignupButton", data: false });
               props.navigation.navigate(Screens.Signup, {
                 destination: props.destination,
               });
