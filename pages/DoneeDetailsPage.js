@@ -28,7 +28,7 @@ const initialState = {
   description: "",
   showError: "",
   numMembers: "",
-  addressTitle: "Enter Address",
+  addressTitle: "Enter Location",
   disableAddressButton: false,
 };
 

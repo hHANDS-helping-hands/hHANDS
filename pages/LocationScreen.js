@@ -64,7 +64,7 @@ export default function LocationScreen(props) {
         type: "address",
         value: address,
       });
-      dispatchParent({ type: "addressTitle", value: "Edit Address" });
+      dispatchParent({ type: "addressTitle", value: "Edit Location" });
       props.navigation.goBack();
       console.log("good to go");
     } else {

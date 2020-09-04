@@ -38,7 +38,7 @@ const Navigator = createStackNavigator({
     screen: DoneeDetailsPage,
     navigationOptions: {
       headerTintColor: Color.White,
-      title: "Donee Details",
+      title: "Add Donee",
       headerStyle: {
         backgroundColor: Color.PrimaryColor,
       },
@@ -68,7 +68,7 @@ const Navigator = createStackNavigator({
     screen: LocationScreen,
     navigationOptions: {
       headerTintColor: Color.White,
-      title: "Add Donee",
+      title: "Add Location",
       headerStyle: {
         backgroundColor: Color.PrimaryColor,
       },
